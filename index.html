@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#b8922a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -10,1280 +10,1067 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <title>MK ハイヤー料金計算</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { background: #f5f4f0; font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif; }
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
-    select { -webkit-appearance: none; appearance: none; }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{background:#f5f4f0;font-family:'Hiragino Sans','Noto Sans JP',sans-serif;color:#111;max-width:480px;margin:0 auto;padding-bottom:48px;}
+    input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+    input,select,button{font-family:inherit;}
+
+    /* LOGIN */
+    .login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#f5f4f0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;padding:32px;}
+    .login-logo{width:72px;height:72px;background:#111;border-radius:18px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:28px;color:#b8922a;letter-spacing:2px;margin-bottom:12px;}
+    .login-title{font-size:18px;font-weight:800;color:#111;margin-bottom:4px;}
+    .login-sub{font-size:11px;color:#888;margin-bottom:40px;letter-spacing:.5px;}
+    .login-field{width:100%;margin-bottom:12px;}
+    .login-field label{display:block;font-size:10px;color:#888;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;margin-bottom:6px;}
+    .login-field input{width:100%;padding:12px 14px;border-radius:10px;background:#fff;border:1px solid #e0ddd5;color:#111;font-size:15px;outline:none;}
+    .login-field input:focus{border-color:#b8922a;}
+    .login-btn{width:100%;padding:13px;border-radius:10px;background:#111;border:none;color:#b8922a;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;letter-spacing:.5px;}
+    .login-error{color:#c04020;font-size:12px;text-align:center;margin-top:10px;min-height:18px;}
+
+    /* HEADER */
+    .header{display:flex;align-items:center;gap:12px;padding:16px 16px 12px;background:#fff;border-bottom:2px solid #b8922a;}
+    .logo{width:38px;height:38px;background:#111;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#b8922a;letter-spacing:1px;flex-shrink:0;}
+    .h1{font-size:16px;font-weight:800;}
+    .h2{font-size:10px;color:#888;margin-top:2px;letter-spacing:.5px;}
+
+    /* TABS */
+    .tab-bar{display:flex;background:#fff;border-bottom:1px solid #e0ddd5;overflow-x:auto;}
+    .tab-btn{flex:1;min-width:60px;background:none;border:none;border-bottom:2px solid transparent;color:#888;font-size:12px;padding:10px 4px;cursor:pointer;font-weight:600;white-space:nowrap;}
+    .tab-btn.active{color:#b8922a;border-bottom:2px solid #b8922a;}
+
+    /* BODY */
+    .body{padding:0 14px;}
+    .section{padding:12px 0;}
+    .divider{height:1px;background:#e0ddd5;margin:2px 0;}
+    .label{font-size:10px;color:#888;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;margin-bottom:6px;}
+    .car-note{font-size:10px;color:#888;margin-top:5px;}
+
+    /* SEGMENTS */
+    .seg-group{display:flex;gap:5px;flex-wrap:wrap;}
+    .seg-btn{padding:6px 12px;border-radius:7px;background:#fff;border:1px solid #e0ddd5;color:#888;font-size:12px;cursor:pointer;font-weight:600;transition:all .12s;}
+    .seg-btn.active{background:#111;border-color:#111;color:#b8922a;font-weight:700;}
+    .seg-btn.small{padding:5px 10px;font-size:11px;}
+
+    /* INPUTS */
+    select.inp{width:100%;padding:8px 10px;border-radius:8px;background:#fff;border:1px solid #e0ddd5;color:#111;font-size:13px;outline:none;-webkit-appearance:none;}
+    input.inp{padding:7px 10px;border-radius:8px;background:#fff;border:1px solid #e0ddd5;color:#111;font-size:14px;outline:none;width:100%;}
+    input[type=time].inp{font-size:14px;color-scheme:light;}
+    .inline-row{display:flex;align-items:center;gap:6px;}
+    .unit{font-size:12px;color:#888;flex-shrink:0;}
+
+    /* TIME */
+    .time-row{display:flex;align-items:center;gap:5px;}
+    .time-in{flex:1;padding:7px 8px;border-radius:8px;background:#fff;border:1px solid #e0ddd5;color:#111;font-size:14px;outline:none;min-width:0;color-scheme:light;}
+    .arrow{color:#888;font-size:13px;flex-shrink:0;}
+    .time-tag{font-size:12px;font-weight:700;color:#b8922a;flex-shrink:0;min-width:32px;text-align:right;background:#fdf3d8;border-radius:5px;padding:2px 6px;border:1px solid #e8c96a;}
+    .overtime-tag{font-size:11px;color:#c04020;margin-top:5px;padding-left:2px;font-weight:600;}
+
+    /* HIRE GRID */
+    .hire-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+    /* INFO BOX */
+    .info-box{margin-top:8px;padding:7px 11px;border-radius:8px;background:#fdf3d8;border:1px solid #e8c96a;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+    .info-label{font-size:12px;font-weight:700;color:#b8922a;}
+    .info-sub{font-size:11px;color:#888;}
+
+    /* TOGGLE */
+    .toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:8px;}
+    .toggle-track{width:34px;height:20px;border-radius:10px;background:#e0ddd5;position:relative;flex-shrink:0;transition:background .2s;border:1px solid #c8c4b8;}
+    .toggle-track.on{background:#111;border-color:#111;}
+    .toggle-thumb{width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+    .toggle-track.on .toggle-thumb{left:16px;}
+    .toggle-label{font-size:12px;color:#111;line-height:1.4;}
+
+    /* CONTRACT */
+    .code-list{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+    .code-btn{display:flex;flex-direction:column;align-items:flex-start;padding:9px 12px;border-radius:9px;background:#fff;border:1px solid #e0ddd5;cursor:pointer;text-align:left;transition:all .15s;width:100%;}
+    .code-btn.active{border-color:#b8922a;background:#fdf3d8;}
+    .code-name{font-size:13px;font-weight:700;color:#111;}
+    .code-sub{font-size:10px;color:#888;margin-top:2px;}
+    .code-sub-note{font-size:11px;color:#888;margin-top:6px;padding-left:2px;}
+    .contract-card{margin-top:10px;padding:10px 14px;border-radius:9px;background:#fff;border:1px solid #e0ddd5;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .contract-name{font-size:14px;font-weight:700;}
+    .contract-airport{font-size:11px;color:#888;font-weight:400;margin-left:6px;}
+    .badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:5px;flex-shrink:0;}
+    .badge.green{background:#d4f0e0;color:#1a7a3a;}
+    .badge.red{background:#fde8e0;color:#c04020;}
+    .note-item{font-size:11px;color:#888;line-height:1.7;padding-left:2px;}
+
+    /* COMMON FIELDS */
+    .common-grid{display:flex;gap:16px;align-items:flex-start;}
+    .common-item{display:flex;flex-direction:column;gap:6px;}
+    .highway-row{display:flex;gap:12px;flex-wrap:wrap;}
+    .hw-label{font-size:12px;color:#888;flex-shrink:0;min-width:36px;}
+
+    /* RESULT */
+    .result-box{padding:14px 0 8px;}
+    .placeholder{color:#888;font-size:13px;text-align:center;padding:12px 0;}
+    .bd-row{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;}
+    .bd-label{font-size:12px;color:#888;}
+    .bd-val{font-size:14px;color:#111;font-weight:700;}
+    .bd-val.accent{color:#c04020;}
+    .total-divider{height:2px;background:#111;margin:10px 0 12px;}
+    .total-label{font-size:10px;color:#888;letter-spacing:1.2px;text-transform:uppercase;text-align:center;margin-bottom:6px;font-weight:600;}
+    .total-amt{font-size:48px;font-weight:900;color:#111;letter-spacing:-1px;line-height:1;text-align:center;}
+
+    /* RULES */
+    .search-box{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e0ddd5;border-radius:10px;padding:8px 12px;margin-bottom:12px;}
+    .search-input{flex:1;border:none;outline:none;font-size:14px;font-family:inherit;background:transparent;color:#111;}
+    .clear-btn{border:none;background:none;color:#888;cursor:pointer;font-size:13px;padding:0 2px;}
+    .cat-block{margin-bottom:8px;border-radius:10px;overflow:hidden;border:1px solid #e0ddd5;background:#fff;}
+    .cat-header{width:100%;display:flex;align-items:center;gap:10px;padding:11px 14px;background:none;border:none;cursor:pointer;text-align:left;}
+    .cat-icon{font-size:16px;flex-shrink:0;}
+    .cat-name{flex:1;font-size:14px;font-weight:700;color:#111;}
+    .cat-chevron{font-size:11px;color:#888;}
+    .item-list{border-top:1px solid #e0ddd5;}
+    .rule-item{padding:10px 14px;border-bottom:1px solid #f5f4f0;}
+    .item-title{font-size:12px;font-weight:700;color:#b8922a;margin-bottom:4px;}
+    .item-body{font-size:12px;color:#111;line-height:1.7;}
+
+    .footer{text-align:center;color:#bbb;font-size:10px;letter-spacing:.8px;padding-top:20px;}
+    .spacer{height:10px;}
+    .spacer-sm{height:6px;}
   </style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="text/babel">
-    const { useState } = React;
 
-// ============================================================
-// 料金データ 2026年5月21日〜
-// ============================================================
+<!-- ログイン画面 -->
+<div class="login-screen" id="login-screen">
+  <div class="login-logo">MK</div>
+  <div class="login-title">ハイヤー料金計算</div>
+  <div class="login-sub">2026.5.21〜 料金表準拠</div>
+  <div class="login-field">
+    <label>ID</label>
+    <input type="text" id="login-id" placeholder="ID を入力" autocomplete="username" />
+  </div>
+  <div class="login-field">
+    <label>パスワード</label>
+    <input type="password" id="login-pw" placeholder="パスワードを入力" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" />
+  </div>
+  <button class="login-btn" onclick="doLogin()">ログイン</button>
+  <div class="login-error" id="login-error"></div>
+</div>
 
-// 羽田定額 { 一般, 会員 } per car class
+<!-- メインアプリ（ログイン後に表示） -->
+<div id="main-app" style="display:none">
+  <div class="logo">MK</div>
+  <div>
+    <div class="h1">ハイヤー料金計算</div>
+    <div class="h2">2026.5.21〜 料金表準拠</div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('haneda')">羽田</button>
+  <button class="tab-btn" onclick="switchTab('narita')">成田</button>
+  <button class="tab-btn" onclick="switchTab('hire')">貸切</button>
+  <button class="tab-btn" onclick="switchTab('contract')">契約</button>
+  <button class="tab-btn" onclick="switchTab('rules')">ルール</button>
+</div>
+
+<div class="body">
+
+  <!-- 車種・区分 (契約・ルール以外) -->
+  <div id="car-section" class="section">
+    <div class="seg-group">
+      <button class="seg-btn active" onclick="setCar('luxury')">ラグ</button>
+      <button class="seg-btn" onclick="setCar('exec')">エグゼ</button>
+      <button class="seg-btn" onclick="setCar('first')">ファースト</button>
+      <div style="width:8px"></div>
+      <button class="seg-btn active" id="btn-gen" onclick="setMember(false)">一般</button>
+      <button class="seg-btn" id="btn-mem" onclick="setMember(true)">会員</button>
+    </div>
+    <div class="car-note" id="car-note">ベンツV / グランエース / アルファード</div>
+  </div>
+  <div id="car-divider" class="divider"></div>
+
+  <!-- 羽田 -->
+  <div id="tab-haneda" class="section">
+    <div class="label">エリア</div>
+    <select class="inp" id="h-area" onchange="calc()">
+      <option value="">選択してください</option>
+      <option value="大田・品川">大田・品川</option>
+      <option value="江東・港">江東・港</option>
+      <option value="中央・千代田・荒川・渋谷・新宿・墨田・台東・文京・目黒">中央・千代田・荒川・渋谷・新宿・墨田・台東・文京・目黒</option>
+      <option value="足立・板橋・江戸川・葛飾・杉並・世田谷・豊島・中野">足立・板橋・江戸川・葛飾・杉並・世田谷・豊島・中野</option>
+      <option value="練馬・北">練馬・北</option>
+    </select>
+    <div class="spacer"></div>
+    <div class="label">超過時間</div>
+    <select class="inp" id="h-ot" onchange="calc()">
+      <option value="0">なし</option>
+      <option value="0.5">0.5h</option>
+      <option value="1">1h</option>
+      <option value="1.5">1.5h</option>
+      <option value="2">2h</option>
+      <option value="2.5">2.5h</option>
+      <option value="3">3h</option>
+    </select>
+    <div class="spacer"></div>
+    <div class="toggle-row" onclick="toggleLate()">
+      <div class="toggle-track" id="track-late"><div class="toggle-thumb"></div></div>
+      <span class="toggle-label">深夜早朝 22時〜翌5時（25%増）</span>
+    </div>
+    <div class="toggle-row" onclick="toggleEsd()">
+      <div class="toggle-track" id="track-esd"><div class="toggle-thumb"></div></div>
+      <span class="toggle-label">英語対応ドライバー ESD（¥2,000/h・最低¥4,000）</span>
+    </div>
+  </div>
+
+  <!-- 成田 -->
+  <div id="tab-narita" class="section" style="display:none">
+    <div class="label">送迎タイプ</div>
+    <div class="seg-group" id="narita-type-btns">
+      <button class="seg-btn active" onclick="setNaritaType('送迎（通り/2H）')">通り/2H</button>
+      <button class="seg-btn" onclick="setNaritaType('送迎（迎え/3H）')">迎え/3H</button>
+      <button class="seg-btn" onclick="setNaritaType('送迎（往復/5H）')">往復/5H</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="label">超過時間</div>
+    <select class="inp" id="n-ot" onchange="calc()">
+      <option value="0">なし</option>
+      <option value="0.5">0.5h</option>
+      <option value="1">1h</option>
+      <option value="1.5">1.5h</option>
+      <option value="2">2h</option>
+      <option value="2.5">2.5h</option>
+      <option value="3">3h</option>
+    </select>
+    <div class="spacer"></div>
+    <div class="toggle-row" onclick="toggleLate()">
+      <div class="toggle-track" id="track-late-n"><div class="toggle-thumb"></div></div>
+      <span class="toggle-label">深夜早朝 22時〜翌5時（25%増）</span>
+    </div>
+    <div class="toggle-row" onclick="toggleEsd()">
+      <div class="toggle-track" id="track-esd-n"><div class="toggle-thumb"></div></div>
+      <span class="toggle-label">英語対応ドライバー ESD（¥2,000/h・最低¥4,000）</span>
+    </div>
+  </div>
+
+  <!-- ハイヤー貸切 -->
+  <div id="tab-hire" class="section" style="display:none">
+    <div class="hire-grid">
+      <div>
+        <div class="label">予約時刻</div>
+        <div class="time-row">
+          <input type="time" class="time-in" id="book-start" oninput="calcHireTimes()">
+          <span class="arrow">→</span>
+          <input type="time" class="time-in" id="book-end" oninput="calcHireTimes()">
+        </div>
+        <div id="book-tag" style="margin-top:4px;display:none"><span class="time-tag" id="book-tag-val"></span></div>
+      </div>
+      <div>
+        <div class="label">実走距離（ドリップ）</div>
+        <div class="inline-row">
+          <input type="number" class="inp" id="hire-km" placeholder="例: 87" oninput="calc()" style="flex:1">
+          <span class="unit">km</span>
+        </div>
+      </div>
+      <div>
+        <div class="label">実乗車時刻</div>
+        <div class="time-row">
+          <input type="time" class="time-in" id="ride-start" oninput="calcHireTimes()">
+          <span class="arrow">→</span>
+          <input type="time" class="time-in" id="ride-end" oninput="calcHireTimes()">
+        </div>
+        <div id="ride-tag" style="margin-top:4px;display:none"><span class="time-tag" id="ride-tag-val"></span></div>
+        <div id="overtime-tag" class="overtime-tag" style="display:none"></div>
+      </div>
+      <div id="hire-fallback">
+        <div class="label">予約時間（時刻未入力時）</div>
+        <select class="inp" id="hire-h" onchange="calc()"></select>
+      </div>
+    </div>
+    <div id="hire-info" class="info-box" style="display:none">
+      <span class="info-label" id="hire-info-label"></span>
+      <span class="info-sub" id="hire-info-sub"></span>
+    </div>
+    <div class="spacer"></div>
+    <div class="label">オプション</div>
+    <div class="toggle-row" onclick="toggleLate()">
+      <div class="toggle-track" id="track-late-h"><div class="toggle-thumb"></div></div>
+      <span class="toggle-label">深夜早朝 22時〜翌5時（25%増）</span>
+    </div>
+    <div class="toggle-row" onclick="toggleEsd()">
+      <div class="toggle-track" id="track-esd-h"><div class="toggle-thumb"></div></div>
+      <span class="toggle-label">英語対応ドライバー ESD（¥2,000/h・最低¥4,000）</span>
+    </div>
+  </div>
+
+  <!-- 契約 -->
+  <div id="tab-contract" class="section" style="display:none">
+    <div class="label">契約先</div>
+    <div class="code-list">
+      <button class="code-btn" onclick="setContract('emirates')">
+        <span class="code-name">エミレーツ航空</span>
+        <span class="code-sub">羽田 2507889-0001 / 成田 2507689-0600</span>
+      </button>
+      <button class="code-btn" onclick="setContract('united')">
+        <span class="code-name">ユナイテッド航空（UAクルー）</span>
+        <span class="code-sub">成田 · 2574349-0009</span>
+      </button>
+    </div>
+
+    <!-- エミレーツ詳細 -->
+    <div id="emirates-detail" style="display:none">
+      <div class="spacer"></div>
+      <div class="label">空港</div>
+      <div class="seg-group">
+        <button class="seg-btn active" id="btn-haneda-ap" onclick="setEmiratesAirport('haneda')">羽田空港</button>
+        <button class="seg-btn" id="btn-narita-ap" onclick="setEmiratesAirport('narita')">成田空港</button>
+      </div>
+      <div class="code-sub-note" id="emirates-code-note">コード: 2507889-0001 · 80km超で現収</div>
+      <div class="contract-card">
+        <div class="contract-name">エミレーツ航空 <span class="contract-airport" id="emirates-airport-label">羽田空港</span></div>
+        <div class="badge green">未収</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="label">方向</div>
+      <div class="seg-group">
+        <button class="seg-btn" id="btn-up" onclick="setDir('up')">△ 送り（UP）</button>
+        <button class="seg-btn active" id="btn-down" onclick="setDir('down')">▲ 迎え（DOWN）</button>
+      </div>
+      <div class="spacer"></div>
+      <div class="label">乗車人数</div>
+      <div class="seg-group">
+        <button class="seg-btn active" id="btn-pax1" onclick="setPax('1')">1名様</button>
+        <button class="seg-btn" id="btn-pax2" onclick="setPax('2+')">2名様以上</button>
+      </div>
+      <div class="spacer"></div>
+      <div class="label">実走距離</div>
+      <div class="inline-row">
+        <input type="number" class="inp" id="contract-km" placeholder="例: 87" oninput="calc()" style="flex:1">
+        <span class="unit">km</span>
+      </div>
+      <div id="payment-note" class="info-box" style="display:none;margin-top:8px;">
+        <span class="info-label" id="payment-note-text"></span>
+      </div>
+      <div class="spacer"></div>
+      <div class="label">注意事項</div>
+      <div id="emirates-notes"></div>
+    </div>
+
+    <!-- ユナイテッド詳細 -->
+    <div id="united-detail" style="display:none">
+      <div class="contract-card">
+        <div class="contract-name">ユナイテッド航空 <span class="contract-airport">成田空港</span></div>
+        <div class="badge green">未収・ノーサイン</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="label">台数</div>
+      <div class="seg-group">
+        <button class="seg-btn active" id="btn-car1" onclick="setUACars('1')">1台口 ¥24,000</button>
+        <button class="seg-btn" id="btn-car2" onclick="setUACars('2')">2台口 ¥12,000</button>
+      </div>
+      <div class="spacer"></div>
+      <div class="label">注意事項</div>
+      <div id="united-notes"></div>
+    </div>
+  </div>
+
+  <!-- ルール -->
+  <div id="tab-rules" class="section" style="display:none">
+    <div class="search-box">
+      <span class="cat-icon">🔍</span>
+      <input type="text" class="search-input" id="rule-search" placeholder="キーワードで検索..." oninput="filterRules()">
+      <button class="clear-btn" id="clear-btn" onclick="clearSearch()" style="display:none">✕</button>
+    </div>
+    <div id="rules-container"></div>
+  </div>
+
+  <div id="common-section">
+    <div class="divider"></div>
+    <div class="section">
+      <div class="common-grid">
+        <div class="common-item">
+          <div class="label">人数</div>
+          <select class="inp" id="persons" onchange="calc()" style="padding:7px 8px;font-size:13px;">
+            <option value="">—</option>
+            <option value="1">1名</option>
+            <option value="2">2名</option>
+            <option value="3">3名</option>
+            <option value="4">4名</option>
+            <option value="5">5名</option>
+            <option value="6">6名</option>
+            <option value="7">7名</option>
+            <option value="8">8名</option>
+          </select>
+        </div>
+        <div class="common-item">
+          <div class="label">ミート料</div>
+          <div class="seg-group">
+            <button class="seg-btn small active" id="btn-meet0" onclick="setMeet('')">なし</button>
+            <button class="seg-btn small" id="btn-meet5" onclick="setMeet('5000')">¥5,000</button>
+            <button class="seg-btn small" id="btn-meet8" onclick="setMeet('8000')">¥8,000</button>
+          </div>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <div class="label">高速代</div>
+      <div class="highway-row">
+        <div class="inline-row">
+          <span class="hw-label">ETC</span>
+          <input type="number" class="inp" id="highway-etc" placeholder="0" oninput="calc()" style="width:90px">
+          <span class="unit">円</span>
+        </div>
+        <div class="inline-row">
+          <span class="hw-label">立替金</span>
+          <input type="number" class="inp" id="highway-cash" placeholder="0" oninput="calc()" style="width:90px">
+          <span class="unit">円</span>
+        </div>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <!-- 結果 -->
+    <div class="result-box" id="result-box">
+      <div class="placeholder">条件を選択してください</div>
+    </div>
+  </div>
+
+</div>
+<div class="footer">MK Tokyo · HIRE 料金表 2026.5.21〜</div>
+</div><!-- /main-app -->
+
+<script>
+// ============================================================
+// データ
+// ============================================================
 const HANEDA = {
-  "大田・品川": {
-    luxury: { gen: 17000, mem: 15300 },
-    exec:   { gen: 19000, mem: 17100 },
-    first:  { gen: 40000, mem: 36000 },
-  },
-  "江東・港": {
-    luxury: { gen: 19000, mem: 17100 },
-    exec:   { gen: 21000, mem: 18900 },
-    first:  { gen: 40000, mem: 36000 },
-  },
-  "中央・千代田・荒川・渋谷・新宿・墨田・台東・文京・目黒": {
-    luxury: { gen: 23000, mem: 20700 },
-    exec:   { gen: 25000, mem: 22500 },
-    first:  { gen: 40000, mem: 36000 },
-  },
-  "足立・板橋・江戸川・葛飾・杉並・世田谷・豊島・中野": {
-    luxury: { gen: 26000, mem: 23400 },
-    exec:   { gen: 31000, mem: 27900 },
-    first:  { gen: 40000, mem: 36000 },
-  },
-  "練馬・北": {
-    luxury: { gen: 31000, mem: 27900 },
-    exec:   { gen: 35000, mem: 31500 },
-    first:  { gen: 40000, mem: 36000 },
-  },
+  "大田・品川":           { luxury:{gen:17000,mem:15300}, exec:{gen:19000,mem:17100}, first:{gen:40000,mem:36000} },
+  "江東・港":             { luxury:{gen:19000,mem:17100}, exec:{gen:21000,mem:18900}, first:{gen:40000,mem:36000} },
+  "中央・千代田・荒川・渋谷・新宿・墨田・台東・文京・目黒": { luxury:{gen:23000,mem:20700}, exec:{gen:25000,mem:22500}, first:{gen:40000,mem:36000} },
+  "足立・板橋・江戸川・葛飾・杉並・世田谷・豊島・中野":     { luxury:{gen:26000,mem:23400}, exec:{gen:31000,mem:27900}, first:{gen:40000,mem:36000} },
+  "練馬・北":             { luxury:{gen:31000,mem:27900}, exec:{gen:35000,mem:31500}, first:{gen:40000,mem:36000} },
 };
-
-// 羽田超過 30分ごと
 const HANEDA_OT = {
-  luxury: { gen: 4000, mem: 3600 },
-  exec:   { gen: 4500, mem: 4050 },
-  first:  { gen: 10000, mem: 9000 },
+  luxury:{gen:4000,mem:3600}, exec:{gen:4500,mem:4050}, first:{gen:10000,mem:9000}
 };
-
-// 成田定額 { 一般, 会員 }
 const NARITA = {
-  "送迎（通り/2H）": {
-    luxury: { gen: 40500, mem: 40500 },   // ラグジュアリー一般=会員同額（表より）
-    exec:   { gen: 45900, mem: 45900 },
-    first:  { gen: 72000, mem: 72000 },
-  },
-  "送迎（迎え/3H）": {
-    luxury: { gen: 48500, mem: 48500 },
-    exec:   { gen: 53900, mem: 53900 },
-    first:  { gen: null,  mem: null  },
-  },
-  "送迎（往復/5H）": {
-    luxury: { gen: 89000, mem: 89000 },
-    exec:   { gen: 99000, mem: 99800 },
-    first:  { gen: null,  mem: null  },
-  },
+  "送迎（通り/2H）": { luxury:{gen:40500,mem:40500}, exec:{gen:45900,mem:45900}, first:{gen:72000,mem:72000} },
+  "送迎（迎え/3H）": { luxury:{gen:48500,mem:48500}, exec:{gen:53900,mem:53900}, first:{gen:null,mem:null} },
+  "送迎（往復/5H）": { luxury:{gen:89000,mem:89000}, exec:{gen:99000,mem:99800}, first:{gen:null,mem:null} },
 };
-
-// 成田超過 30分ごと（羽田と同じ）
 const NARITA_OT = HANEDA_OT;
-
-// ハイヤー貸切料金表（一般/会員）
-// h=時間, km=距離目安
 const HIRE_TABLE = [
-  { h:1.0,  km:15,    lxG:18000, lxM:16200, exG:21000, exM:18900, ftG:null,   ftM:null   },
-  { h:1.5,  km:22.5,  lxG:22000, lxM:19800, exG:25500, exM:22950, ftG:null,   ftM:null   },
-  { h:2.0,  km:30,    lxG:26000, lxM:23400, exG:30000, exM:27000, ftG:null,   ftM:null   },
-  { h:2.5,  km:37.5,  lxG:30000, lxM:27000, exG:34500, exM:31050, ftG:80000,  ftM:72000  },
-  { h:3.0,  km:45,    lxG:34000, lxM:30600, exG:39000, exM:35100, ftG:null,   ftM:null   },
-  { h:3.5,  km:52.5,  lxG:38000, lxM:34200, exG:43500, exM:39150, ftG:null,   ftM:null   },
-  { h:4.0,  km:60,    lxG:42000, lxM:37800, exG:48000, exM:43200, ftG:null,   ftM:null   },
-  { h:4.5,  km:67.5,  lxG:46000, lxM:41400, exG:52500, exM:47250, ftG:90000,  ftM:81000  },
-  { h:5.0,  km:75,    lxG:50000, lxM:45000, exG:57000, exM:51300, ftG:100000, ftM:90000  },
-  { h:5.5,  km:82.5,  lxG:54000, lxM:48600, exG:61500, exM:55350, ftG:110000, ftM:99000  },
-  { h:6.0,  km:90,    lxG:58000, lxM:52200, exG:66000, exM:59400, ftG:120000, ftM:108000 },
-  { h:6.5,  km:97.5,  lxG:62000, lxM:55800, exG:70500, exM:63450, ftG:130000, ftM:117000 },
-  { h:7.0,  km:105,   lxG:66000, lxM:59400, exG:75000, exM:67500, ftG:140000, ftM:126000 },
-  { h:7.5,  km:112.5, lxG:70000, lxM:63000, exG:79500, exM:71550, ftG:150000, ftM:135000 },
-  { h:8.0,  km:120,   lxG:74000, lxM:66600, exG:84000, exM:75600, ftG:160000, ftM:144000 },
-  { h:8.5,  km:127.5, lxG:78000, lxM:70200, exG:88500, exM:79650, ftG:170000, ftM:153000 },
-  { h:9.0,  km:135,   lxG:82000, lxM:73800, exG:93000, exM:83700, ftG:180000, ftM:162000 },
-  { h:9.5,  km:142.5, lxG:86000, lxM:77400, exG:97500, exM:87750, ftG:190000, ftM:171000 },
-  { h:10.0, km:150,   lxG:90000, lxM:81000, exG:102000,exM:91800, ftG:200000, ftM:180000 },
-  { h:10.5, km:157.5, lxG:94000, lxM:84600, exG:106500,exM:95850, ftG:210000, ftM:189000 },
-  { h:11.0, km:165,   lxG:98000, lxM:88200, exG:111000,exM:99900, ftG:220000, ftM:198000 },
-  { h:11.5, km:172.5, lxG:102000,lxM:91800, exG:115500,exM:103950,ftG:230000, ftM:207000 },
-  { h:12.0, km:180,   lxG:106000,lxM:95400, exG:120000,exM:108000,ftG:240000, ftM:216000 },
-  { h:12.5, km:187.5, lxG:110000,lxM:99000, exG:124500,exM:112050,ftG:250000, ftM:225000 },
-  { h:13.0, km:195,   lxG:114000,lxM:102600,exG:129000,exM:116100,ftG:260000, ftM:234000 },
-  { h:13.5, km:202.5, lxG:118000,lxM:106200,exG:133500,exM:120150,ftG:270000, ftM:243000 },
-  { h:14.0, km:210,   lxG:122000,lxM:109800,exG:138000,exM:124200,ftG:280000, ftM:252000 },
-  { h:14.5, km:217.5, lxG:126000,lxM:113400,exG:142500,exM:128250,ftG:290000, ftM:261000 },
-  { h:15.0, km:225,   lxG:130000,lxM:117000,exG:147000,exM:132300,ftG:300000, ftM:270000 },
-  { h:15.5, km:232.5, lxG:134000,lxM:120600,exG:151500,exM:136350,ftG:310000, ftM:279000 },
-  { h:16.0, km:240,   lxG:138000,lxM:124200,exG:156000,exM:140400,ftG:320000, ftM:288000 },
-  { h:16.5, km:247.5, lxG:142000,lxM:127800,exG:160500,exM:144450,ftG:330000, ftM:297000 },
-  { h:17.0, km:255,   lxG:146000,lxM:131400,exG:165000,exM:148500,ftG:340000, ftM:306000 },
-  { h:17.5, km:262.5, lxG:150000,lxM:135000,exG:169500,exM:152550,ftG:350000, ftM:315000 },
-  { h:18.0, km:270,   lxG:154000,lxM:138600,exG:174000,exM:156600,ftG:360000, ftM:324000 },
-  { h:18.5, km:277.5, lxG:158000,lxM:142200,exG:178500,exM:160650,ftG:370000, ftM:333000 },
-  { h:19.0, km:285,   lxG:162000,lxM:145800,exG:183000,exM:164700,ftG:380000, ftM:342000 },
-  { h:19.5, km:292.5, lxG:166000,lxM:149400,exG:187500,exM:168750,ftG:390000, ftM:351000 },
-  { h:20.0, km:300,   lxG:170000,lxM:153000,exG:192000,exM:172800,ftG:400000, ftM:360000 },
+  {h:1.0,km:15,   lxG:18000,lxM:16200,exG:21000,exM:18900,ftG:null,  ftM:null  },
+  {h:1.5,km:22.5, lxG:22000,lxM:19800,exG:25500,exM:22950,ftG:null,  ftM:null  },
+  {h:2.0,km:30,   lxG:26000,lxM:23400,exG:30000,exM:27000,ftG:null,  ftM:null  },
+  {h:2.5,km:37.5, lxG:30000,lxM:27000,exG:34500,exM:31050,ftG:80000, ftM:72000 },
+  {h:3.0,km:45,   lxG:34000,lxM:30600,exG:39000,exM:35100,ftG:null,  ftM:null  },
+  {h:3.5,km:52.5, lxG:38000,lxM:34200,exG:43500,exM:39150,ftG:null,  ftM:null  },
+  {h:4.0,km:60,   lxG:42000,lxM:37800,exG:48000,exM:43200,ftG:null,  ftM:null  },
+  {h:4.5,km:67.5, lxG:46000,lxM:41400,exG:52500,exM:47250,ftG:90000, ftM:81000 },
+  {h:5.0,km:75,   lxG:50000,lxM:45000,exG:57000,exM:51300,ftG:100000,ftM:90000 },
+  {h:5.5,km:82.5, lxG:54000,lxM:48600,exG:61500,exM:55350,ftG:110000,ftM:99000 },
+  {h:6.0,km:90,   lxG:58000,lxM:52200,exG:66000,exM:59400,ftG:120000,ftM:108000},
+  {h:6.5,km:97.5, lxG:62000,lxM:55800,exG:70500,exM:63450,ftG:130000,ftM:117000},
+  {h:7.0,km:105,  lxG:66000,lxM:59400,exG:75000,exM:67500,ftG:140000,ftM:126000},
+  {h:7.5,km:112.5,lxG:70000,lxM:63000,exG:79500,exM:71550,ftG:150000,ftM:135000},
+  {h:8.0,km:120,  lxG:74000,lxM:66600,exG:84000,exM:75600,ftG:160000,ftM:144000},
+  {h:8.5,km:127.5,lxG:78000,lxM:70200,exG:88500,exM:79650,ftG:170000,ftM:153000},
+  {h:9.0,km:135,  lxG:82000,lxM:73800,exG:93000,exM:83700,ftG:180000,ftM:162000},
+  {h:9.5,km:142.5,lxG:86000,lxM:77400,exG:97500,exM:87750,ftG:190000,ftM:171000},
+  {h:10.0,km:150, lxG:90000,lxM:81000,exG:102000,exM:91800,ftG:200000,ftM:180000},
+  {h:10.5,km:157.5,lxG:94000,lxM:84600,exG:106500,exM:95850,ftG:210000,ftM:189000},
+  {h:11.0,km:165, lxG:98000,lxM:88200,exG:111000,exM:99900,ftG:220000,ftM:198000},
+  {h:11.5,km:172.5,lxG:102000,lxM:91800,exG:115500,exM:103950,ftG:230000,ftM:207000},
+  {h:12.0,km:180, lxG:106000,lxM:95400,exG:120000,exM:108000,ftG:240000,ftM:216000},
+  {h:12.5,km:187.5,lxG:110000,lxM:99000,exG:124500,exM:112050,ftG:250000,ftM:225000},
+  {h:13.0,km:195, lxG:114000,lxM:102600,exG:129000,exM:116100,ftG:260000,ftM:234000},
+  {h:13.5,km:202.5,lxG:118000,lxM:106200,exG:133500,exM:120150,ftG:270000,ftM:243000},
+  {h:14.0,km:210, lxG:122000,lxM:109800,exG:138000,exM:124200,ftG:280000,ftM:252000},
+  {h:14.5,km:217.5,lxG:126000,lxM:113400,exG:142500,exM:128250,ftG:290000,ftM:261000},
+  {h:15.0,km:225, lxG:130000,lxM:117000,exG:147000,exM:132300,ftG:300000,ftM:270000},
+  {h:15.5,km:232.5,lxG:134000,lxM:120600,exG:151500,exM:136350,ftG:310000,ftM:279000},
+  {h:16.0,km:240, lxG:138000,lxM:124200,exG:156000,exM:140400,ftG:320000,ftM:288000},
+  {h:16.5,km:247.5,lxG:142000,lxM:127800,exG:160500,exM:144450,ftG:330000,ftM:297000},
+  {h:17.0,km:255, lxG:146000,lxM:131400,exG:165000,exM:148500,ftG:340000,ftM:306000},
+  {h:17.5,km:262.5,lxG:150000,lxM:135000,exG:169500,exM:152550,ftG:350000,ftM:315000},
+  {h:18.0,km:270, lxG:154000,lxM:138600,exG:174000,exM:156600,ftG:360000,ftM:324000},
+  {h:18.5,km:277.5,lxG:158000,lxM:142200,exG:178500,exM:160650,ftG:370000,ftM:333000},
+  {h:19.0,km:285, lxG:162000,lxM:145800,exG:183000,exM:164700,ftG:380000,ftM:342000},
+  {h:19.5,km:292.5,lxG:166000,lxM:149400,exG:187500,exM:168750,ftG:390000,ftM:351000},
+  {h:20.0,km:300, lxG:170000,lxM:153000,exG:192000,exM:172800,ftG:400000,ftM:360000},
 ];
-
-// 貸切超過（30分/7.5km）
 const HIRE_OT = {
-  luxury: { gen: 4000, mem: 3600 },
-  exec:   { gen: 4500, mem: 4050 },
-  first:  { gen: 10000, mem: 9000 },
+  luxury:{gen:4000,mem:3600}, exec:{gen:4500,mem:4050}, first:{gen:10000,mem:9000}
 };
-
-// ESD基本料金：1h=2000円、最低4000円
-const calcESD = (hours) => Math.max(4000, Math.ceil(hours) * 2000);
-
-const fmt = (n) => n == null ? "－" : "¥" + Math.round(n).toLocaleString("ja-JP");
-
-// ============================================================
-// UI定数
-// ============================================================
-const CAR_OPTIONS = [
-  { key: "luxury", short: "ラグジュアリー", long: "ベンツV / グランエース / アルファード" },
-  { key: "exec",   short: "エグゼクティブ", long: "BMW7 / レクサスLM500 / ベンツS550・S400 / ハイエース" },
-  { key: "first",  short: "ファースト",     long: "ロールスロイス / マイバッハGLS600" },
+const EMIRATES_FARE = {
+  haneda: {
+    up:   {base1:18000,base2:18000,ext2:27000,limitKm1:80,limitKm2:120},
+    down: {base1:21000,base2:21000,ext2:31500,limitKm1:80,limitKm2:120},
+    overRate:500
+  },
+  narita: {
+    up:   {base1:24500,base2:24500,ext2:36750,limitKm1:100,limitKm2:150},
+    down: {base1:27500,base2:27500,ext2:41250,limitKm1:100,limitKm2:150},
+    overRate:500
+  }
+};
+const RULES = [
+  {cat:"羽田定額",icon:"✈",items:[
+    {t:"適用ルート",b:"羽田空港↔東京23区内の直行送迎のみ定額適用。途中経由がある場合は時間・距離制の貸切料金。"},
+    {t:"大田区特例",b:"目的地が「大田区羽田空港」の住所であれば、空港施設以外への送迎でも定額料金で対応。"},
+    {t:"超過発生条件",b:"空港送り（UP）：予約時間から送迎完了までが1.5時間を超える場合。\n空港お迎え（DOWN）：飛行機の到着時刻（NT）から送迎完了までが2時間を超える場合。"},
+    {t:"深夜早朝割増",b:"22時〜翌5時の間に開始〜終了がすべて収まる場合、基本料金の25%割増。超過料金が深夜帯にかかる場合は超過分のみ1.25倍。"},
+    {t:"高速道路料金",b:"実費別途請求。車両の回送に伴う高速代・回送代は請求不可。"},
+  ]},
+  {cat:"成田定額",icon:"🛬",items:[
+    {t:"適用ルート",b:"成田空港↔東京23区内の直行送迎のみ。経由地がある場合は貸切料金（回送代不可）。"},
+    {t:"成田市内ホテル",b:"目的地が「成田市内」のホテルであれば、空港施設以外への送迎でも成田定額料金で対応。"},
+    {t:"超過発生条件",b:"空港送り（UP）：予約開始時間から送迎完了までが2時間を超える場合。\n空港お迎え（DOWN）：飛行機の到着時刻（NT）から送迎完了までが3時間を超える場合。"},
+    {t:"ミートサービス",b:"成田空港へのお迎え（空港発）の際はミートサービス必須。担当者が到着ロビーにてネームボードを掲げてお迎え。駐車代込み¥8,000。"},
+    {t:"ロールスロイス",b:"ロールスロイスの場合、業務員によるロビーお迎えは不可。専門業者によるミートサービス対応。"},
+  ]},
+  {cat:"ハイヤー貸切",icon:"🚘",items:[
+    {t:"時間制 vs 距離制",b:"「時間に応じた料金」と「走行距離に応じた料金」を比較し、高い方を適用。"},
+    {t:"予約時間の保証",b:"実際の走行時間が予約時間を下回っても、予約時間ベースで請求。予約開始〜予約終了の時間が基本料金の根拠。"},
+    {t:"超過料金",b:"実車終了が予約終了を超えた場合のみ、超えた分を30分単位（切り上げ）で超過料金加算。"},
+    {t:"8時間ルール",b:"2026年5月21日より廃止。"},
+    {t:"深夜早朝割増",b:"22時〜翌5時の間に利用がかかる場合、基本料金の25%割増。ただし距離制が適用される場合は割増なし。"},
+    {t:"回送料金",b:"30分単位で発生。ラグジュアリー¥4,000 / エグゼクティブ¥4,500 / ファースト¥10,000。"},
+    {t:"ESD（英語対応）",b:"基本料金：1時間あたり¥2,000、最低¥4,000〜。待機開始（着陸時間）から最終降車時刻までの合計時間で算出。"},
+    {t:"キャンセル",b:"原則として回送費およびミートサービス代は請求不可。ただし配車区域外へのお迎えで出庫後キャンセルの場合は所定費用を請求。"},
+  ]},
+  {cat:"経由・特殊ケース",icon:"📍",items:[
+    {t:"経由地あり（空港）",b:"空港→経由地：定額料金\n経由地→目的地：メーター料金\n両区間を合算して請求。"},
+    {t:"都外エリア",b:"東京都外（成田エリアを除く）への送迎は定額なし。すべて時間・距離制の貸切料金。"},
+    {t:"宿泊を伴う長距離",b:"乗務員が連泊する場合、宿泊代として1泊¥20,000を別途請求（繁忙期・地域により変動あり）。"},
+    {t:"チャイルドシート",b:"お子様用チャイルドシート・ブースターシート：1台¥1,000。予約時に事前申告が必要。"},
+  ]},
+  {cat:"エミレーツ航空",icon:"🇦🇪",items:[
+    {t:"羽田コード",b:"2507889-0001"},
+    {t:"成田コード",b:"2507689-0600"},
+    {t:"羽田 未収/現収判定",b:"1名：80kmまで未収、超えたら現収。\n2名以上：80〜120kmは未収、120km超えは現収。"},
+    {t:"成田 未収/現収判定",b:"1名：100kmまで未収、超えたら現収。\n2名以上：100〜150kmは未収、150km超えは現収。"},
+    {t:"超過料金",b:"上限距離を超えた分は1kmごとに¥500（端数切り上げ）。"},
+  ]},
+  {cat:"ユナイテッド航空",icon:"✈",items:[
+    {t:"コード",b:"2574349-0009"},
+    {t:"料金",b:"1台口：¥24,000 / 2台口：¥12,000（1台あたり）"},
+    {t:"支払方法",b:"未収・ノーサイン"},
+    {t:"主要ホテル",b:"ほとんどがANAインターコンチネンタルホテル。名称不明な場合もANA ICと判断。ストリングスホテル東京インターコンチネンタルも同じ契約料金。"},
+    {t:"使用路線",b:"飯倉（レインボーブリッジ・湾岸線B経由）または新空港IC（ANAインターコンチネンタルH送迎時）。"},
+    {t:"注意事項",b:"・クルー様の助手席への乗車禁止\n・3列目シートの片側跳ね上げ禁止\n・荷物が積み切れない場合は助手席に黒い布を被せて荷物置き場として使用\n・送迎最高速度100km/h"},
+    {t:"待機場所（成田第1）",b:"南ウイング側の14aで待機。2台の場合も14aで2台まで待機可能。"},
+  ]},
 ];
 
-const TABS = [
-  { id: "haneda",   label: "羽田定額" },
-  { id: "narita",   label: "成田定額" },
-  { id: "hire",     label: "ハイヤー貸切" },
-  { id: "contract", label: "契約" },
-];
-
 // ============================================================
-// 契約先データ
+// 状態
 // ============================================================
-const CONTRACTS = {
-  // エミレーツ航空
-  "2507889-0001": {
-    name: "エミレーツ航空",
-    airport: "羽田",
-    code: "2507889-0001",
-    payment: "未収",
-    notes: [
-      "走行距離80kmまで未収請求、80km超えは現収",
-      "複数名乗車かつ80km以上の場合：120kmまで未収、以降は現収",
-      "超過料金：上限距離から1km毎に¥500（端数切上）",
-    ],
-    calcFare: ({ persons, km }) => {
-      // 1名
-      // △送り(UP): 18,000 / ▲迎え(DOWN): 21,000  ～80km
-      // 2名以上
-      // △: 18,000 / ▲: 21,000  ～80km
-      // △: 27,000 / ▲: 31,500  81～120km
-      // 121km～: 超過500円/km
-      return null; // UIで方向・人数・kmを入れて計算
-    },
-    fareTable: {
-      // { direction: "up"|"down", persons: "1"|"2+" }
-      up:   { base1: 18000, base2: 18000, ext1: 27000, ext2: 27000, limitKm1: 80, limitKm2: 120 },
-      down: { base1: 21000, base2: 21000, ext1: 31500, ext2: 31500, limitKm1: 80, limitKm2: 120 },
-      overKmRate: 500,
-    },
-  },
-  "2507689-0600": {
-    name: "エミレーツ航空",
-    airport: "成田",
-    code: "2507689-0600",
-    payment: "未収",
-    notes: [
-      "走行距離100kmまで未収請求、100km超えは現収",
-      "複数名乗車かつ100km以上の場合：150kmまで未収、以降は現収",
-      "超過料金：上限距離から1km毎に¥500（端数切上）",
-    ],
-    fareTable: {
-      up:   { base1: 24500, base2: 24500, ext1: 36750, ext2: 36750, limitKm1: 100, limitKm2: 150 },
-      down: { base1: 27500, base2: 27500, ext1: 41250, ext2: 41250, limitKm1: 100, limitKm2: 150 },
-      overKmRate: 500,
-    },
-  },
-  // ユナイテッド航空
-  "2574349-0009": {
-    name: "ユナイテッド航空（UAクルー）",
-    airport: "成田",
-    code: "2574349-0009",
-    payment: "未収・ノーサイン",
-    notes: [
-      "成田空港〜都内ホテル、または都内ホテル〜成田空港の直行送迎",
-      "1台口：¥24,000 / 2台口：¥12,000",
-      "ほとんどがANAインターコンチネンタルホテル（名称不明時もANA IC）",
-      "ストリングスホテル東京インターコンチネンタルも契約料金は同額",
-      "送迎最高速度100km/h",
-      "使用路線：飯倉（レインボーブリッジ・湾岸線B経由）または新空港IC",
-      "クルー様の助手席への乗車禁止",
-      "3列目シートの片側跳ね上げ禁止",
-    ],
-    fareTable: {
-      flat1: 24000,  // 1台口
-      flat2: 12000,  // 2台口
-    },
-    isFlat: true,
-  },
-};
-
-
-// ============================================================
-export default function App() {
-  const [tab, setTab]       = useState("haneda");
-  const [car, setCar]       = useState("luxury");
-  const [member, setMember] = useState(false);
-  const [lateNight, setLate]= useState(false);
-  const [esd, setEsd]       = useState(false);
-
+let state = {
+  tab: 'haneda',
+  car: 'luxury',
+  member: false,
+  lateNight: false,
+  esd: false,
   // 羽田
-  const [hArea, setHArea] = useState("");
-  const [hOT, setHOT]     = useState(0);
-
+  hArea: '',
+  hOT: 0,
   // 成田
-  const [nType, setNType] = useState("送迎（通り/2H）");
-  const [nOT, setNOT]     = useState(0);
-
-  // ハイヤー
-  const [hireH, setHireH]   = useState(2.0);
-  const [hireKm, setHireKm] = useState("");
-  const [bookStart, setBookStart] = useState("");
-  const [bookEnd,   setBookEnd]   = useState("");
-  const [rideStart, setRideStart] = useState("");
-  const [rideEnd,   setRideEnd]   = useState("");
-
+  nType: '送迎（通り/2H）',
+  nOT: 0,
+  // 貸切
+  hireH: 2.0,
+  hireKm: '',
+  bookStart: '', bookEnd: '',
+  rideStart: '', rideEnd: '',
   // 契約
-  const [contractCode, setContractCode] = useState("");
-  const [contractDir,  setContractDir]  = useState("down");
-  const [contractPax,  setContractPax]  = useState("1");
-  const [contractKm,   setContractKm]   = useState("");
-  const [contractCars, setContractCars] = useState("1");
-  const [emiratesAirport, setEmiratesAirport] = useState("haneda"); // エミレーツ羽田/成田
-
+  contract: '',
+  emiratesAirport: 'haneda',
+  dir: 'down',
+  pax: '1',
+  contractKm: '',
+  uaCars: '1',
   // 共通
-  const [persons,     setPersons]     = useState("");
-  const [highwayEtc,  setHighwayEtc]  = useState("");
-  const [highwayCash, setHighwayCash] = useState("");
-  const [meetFee,     setMeetFee]     = useState("");
+  persons: '',
+  meetFee: '',
+  highwayEtc: '',
+  highwayCash: '',
+};
 
-  // 時刻計算
-  const timeDiffH = (s, e) => {
-    if (!s || !e) return null;
-    const [sh, sm] = s.split(":").map(Number);
-    const [eh, em] = e.split(":").map(Number);
-    let diff = (eh * 60 + em) - (sh * 60 + sm);
-    if (diff <= 0) diff += 24 * 60;
-    return diff / 60;
-  };
-  const roundUpHalf = (h) => Math.ceil(h * 2) / 2;
+// ============================================================
+// 初期化
+// ============================================================
+function init() {
+  // 貸切時間ドロップダウン生成
+  const sel = document.getElementById('hire-h');
+  HIRE_TABLE.forEach(r => {
+    const o = document.createElement('option');
+    o.value = r.h;
+    o.textContent = r.h + 'h（目安 ' + r.km + 'km）';
+    if (r.h === 2.0) o.selected = true;
+    sel.appendChild(o);
+  });
 
-  const bookH = timeDiffH(bookStart, bookEnd);
-  const rideH = timeDiffH(rideStart, rideEnd);
+  // ルール生成
+  buildRules(RULES);
 
-  // 超過 = 実車終了が予約終了を超えた分（30分切り上げ）
-  const overtimeH = (() => {
-    if (!bookEnd || !rideEnd) return 0;
-    const [bh, bm] = bookEnd.split(":").map(Number);
-    const [rh, rm] = rideEnd.split(":").map(Number);
-    let diff = (rh * 60 + rm) - (bh * 60 + bm);
-    if (diff <= 0) return 0; // 予約終了前に終わった場合は超過なし
-    return Math.ceil(diff / 30) * 0.5; // 30分単位切り上げ
-  })();
+  // エミレーツ・UA注意事項
+  const emNotes = RULES.find(r=>r.cat==='エミレーツ航空');
+  if (emNotes) {
+    const el = document.getElementById('emirates-notes');
+    emNotes.items.forEach(item => {
+      el.innerHTML += `<div class="note-item">· <b>${item.t}</b>: ${item.b.replace(/\n/g,'<br>')}</div>`;
+    });
+  }
+  const uaNotes = RULES.find(r=>r.cat==='ユナイテッド航空');
+  if (uaNotes) {
+    const el = document.getElementById('united-notes');
+    uaNotes.items.forEach(item => {
+      el.innerHTML += `<div class="note-item">· <b>${item.t}</b>: ${item.b.replace(/\n/g,'<br>')}</div>`;
+    });
+  }
 
-  // 計算共通
-  const mk = () => member ? "mem" : "gen";
-  const applyLate = (v) => lateNight ? Math.round(v * 1.25) : v;
-  const calcESD = (h) => Math.max(4000, Math.ceil(h) * 2000);
+  calc();
+}
 
-  // 羽田
-  const calcHaneda = () => {
-    if (!hArea) return null;
-    const d = HANEDA[hArea]?.[car];
-    if (!d) return null;
-    let base = applyLate(d[mk()]);
-    const ot = applyLate(Math.floor(hOT / 0.5) * HANEDA_OT[car][mk()]);
-    const esdAmt = esd ? calcESD(1.5) : 0;
-    return base + ot + esdAmt;
-  };
+function buildRules(rules) {
+  const container = document.getElementById('rules-container');
+  container.innerHTML = '';
+  rules.forEach(cat => {
+    const block = document.createElement('div');
+    block.className = 'cat-block';
+    block.dataset.cat = cat.cat;
+    block.innerHTML = `
+      <button class="cat-header" onclick="toggleCat(this)">
+        <span class="cat-icon">${cat.icon}</span>
+        <span class="cat-name">${cat.cat}</span>
+        <span class="cat-chevron">▼</span>
+      </button>
+      <div class="item-list" style="display:none">
+        ${cat.items.map(item => `
+          <div class="rule-item" data-text="${cat.cat} ${item.t} ${item.b}">
+            <div class="item-title">${item.t}</div>
+            <div class="item-body">${item.b.replace(/\n/g,'<br>')}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(block);
+  });
+}
 
-  // 成田
-  const calcNarita = () => {
-    const d = NARITA[nType]?.[car];
-    if (!d) return null;
-    let base = d[mk()];
-    if (base == null) return null;
-    base = applyLate(base);
-    const ot = applyLate(Math.floor(nOT / 0.5) * NARITA_OT[car][mk()]);
-    const baseH = nType.includes("5H") ? 5 : nType.includes("3H") ? 3 : 2;
-    const esdAmt = esd ? calcESD(baseH) : 0;
-    return base + ot + esdAmt;
-  };
+function toggleCat(btn) {
+  const list = btn.nextElementSibling;
+  const chevron = btn.querySelector('.cat-chevron');
+  const open = list.style.display === 'none';
+  list.style.display = open ? 'block' : 'none';
+  chevron.textContent = open ? '▲' : '▼';
+}
 
-  // ハイヤー貸切
-  const calcHire = () => {
-    const keyG = car === "luxury" ? "lxG" : car === "exec" ? "exG" : "ftG";
-    const keyM = car === "luxury" ? "lxM" : car === "exec" ? "exM" : "ftM";
-    const priceKey = member ? keyM : keyG;
-    const baseH = bookH != null ? roundUpHalf(bookH) : hireH;
-    const timeRow = HIRE_TABLE.find(r => r.h === baseH)
-      ?? [...HIRE_TABLE].reverse().find(r => r.h <= baseH);
-    const timePrice = timeRow?.[priceKey] ?? null;
-    let distPrice = null;
-    const km = parseFloat(hireKm);
-    if (!isNaN(km) && km > 0) {
-      const distRow = [...HIRE_TABLE].reverse().find(r => r.km <= km);
-      if (distRow) distPrice = distRow[priceKey];
+function filterRules() {
+  const q = document.getElementById('rule-search').value.toLowerCase();
+  document.getElementById('clear-btn').style.display = q ? 'inline' : 'none';
+  document.querySelectorAll('.cat-block').forEach(block => {
+    const items = block.querySelectorAll('.rule-item');
+    let anyMatch = false;
+    items.forEach(item => {
+      const match = !q || item.dataset.text.toLowerCase().includes(q);
+      item.style.display = match ? 'block' : 'none';
+      if (match) anyMatch = true;
+    });
+    block.style.display = anyMatch ? 'block' : 'none';
+    if (q && anyMatch) {
+      block.querySelector('.item-list').style.display = 'block';
+      block.querySelector('.cat-chevron').textContent = '▲';
     }
-    const candidates = [timePrice, distPrice].filter(v => v != null);
-    if (candidates.length === 0) return null;
-    let base = Math.max(...candidates);
-    const otAmt = overtimeH > 0 ? Math.floor(overtimeH / 0.5) * HIRE_OT[car][mk()] : 0;
-    base = applyLate(base + otAmt);
-    const effectiveH = bookH != null ? roundUpHalf(bookH) : hireH;
-    return base + (esd ? calcESD(effectiveH) : 0);
-  };
+  });
+}
 
-  // 契約
-  // エミレーツの実コード（羽田/成田で切替）
-  const resolvedCode = contractCode === "emirates"
-    ? (emiratesAirport === "haneda" ? "2507889-0001" : "2507689-0600")
-    : contractCode;
+function clearSearch() {
+  document.getElementById('rule-search').value = '';
+  document.getElementById('clear-btn').style.display = 'none';
+  filterRules();
+}
 
-  const calcContract = () => {
-    const c = CONTRACTS[resolvedCode];
-    if (!c) return null;
-    if (c.isFlat) return contractCars === "2" ? c.fareTable.flat2 : c.fareTable.flat1;
-    const km = parseFloat(contractKm);
-    const ft = c.fareTable;
-    const dir = contractDir;
-    const isMulti = contractPax === "2+";
-    if (isNaN(km) || km <= 0) return null;
-    let base;
-    if (!isMulti) {
-      base = dir === "up" ? ft.up.base1 : ft.down.base1;
-    } else {
-      if (km <= ft[dir].limitKm1) base = dir === "up" ? ft.up.base2 : ft.down.base2;
-      else base = dir === "up" ? ft.up.ext2 : ft.down.ext2;
-    }
-    let overKm = 0;
-    if (!isMulti && km > ft[dir].limitKm1) overKm = km - ft[dir].limitKm1;
-    else if (isMulti && km > ft[dir].limitKm2) overKm = km - ft[dir].limitKm2;
-    return base + (overKm > 0 ? Math.ceil(overKm) * ft.overKmRate : 0);
-  };
+// ============================================================
+// タブ切替
+// ============================================================
+function switchTab(tab) {
+  state.tab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
 
-  const contractPaymentNote = (() => {
-    const c = CONTRACTS[resolvedCode];
-    if (!c || c.isFlat) return null;
-    const km = parseFloat(contractKm);
-    if (isNaN(km)) return null;
-    const ft = c.fareTable;
-    const isMulti = contractPax === "2+";
-    const limit = isMulti ? ft[contractDir].limitKm2 : ft[contractDir].limitKm1;
-    return km <= limit ? { type: "未収", ok: true } : { type: "現収", ok: false };
-  })();
+  const tabs = ['haneda','narita','hire','contract','rules'];
+  tabs.forEach(t => document.getElementById('tab-'+t).style.display = t===tab ? 'block' : 'none');
 
-  const fareResult =
-    tab === "haneda"   ? calcHaneda() :
-    tab === "narita"   ? calcNarita() :
-    tab === "hire"     ? calcHire()   :
-    calcContract();
+  const showCar = !['contract','rules'].includes(tab);
+  document.getElementById('car-section').style.display = showCar ? 'block' : 'none';
+  document.getElementById('car-divider').style.display = showCar ? 'block' : 'none';
+  document.getElementById('common-section').style.display = tab === 'rules' ? 'none' : 'block';
 
-  // 合計
-  const etc  = parseFloat(highwayEtc)  || 0;
-  const cash = parseFloat(highwayCash) || 0;
-  const meet = parseFloat(meetFee)     || 0;
+  calc();
+}
+
+// ============================================================
+// セッター
+// ============================================================
+function setCar(car) {
+  state.car = car;
+  document.querySelectorAll('.seg-btn[onclick^="setCar"]').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('onclick').includes("'"+car+"'"));
+  });
+  const notes = {luxury:'ベンツV / グランエース / アルファード', exec:'BMW7 / レクサスLM500 / ベンツS550・S400 / ハイエース', first:'ロールスロイス / マイバッハGLS600'};
+  document.getElementById('car-note').textContent = notes[car];
+  calc();
+}
+
+function setMember(m) {
+  state.member = m;
+  document.getElementById('btn-gen').classList.toggle('active', !m);
+  document.getElementById('btn-mem').classList.toggle('active', m);
+  calc();
+}
+
+function toggleLate() {
+  state.lateNight = !state.lateNight;
+  ['track-late','track-late-n','track-late-h'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('on', state.lateNight);
+  });
+  calc();
+}
+
+function toggleEsd() {
+  state.esd = !state.esd;
+  ['track-esd','track-esd-n','track-esd-h'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('on', state.esd);
+  });
+  calc();
+}
+
+function setNaritaType(t) {
+  state.nType = t;
+  document.querySelectorAll('#narita-type-btns .seg-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('onclick').includes("'"+t+"'"));
+  });
+  calc();
+}
+
+function setContract(c) {
+  state.contract = c;
+  document.querySelectorAll('.code-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('onclick').includes("'"+c+"'"));
+  });
+  document.getElementById('emirates-detail').style.display = c==='emirates' ? 'block' : 'none';
+  document.getElementById('united-detail').style.display = c==='united' ? 'block' : 'none';
+  calc();
+}
+
+function setEmiratesAirport(ap) {
+  state.emiratesAirport = ap;
+  document.getElementById('btn-haneda-ap').classList.toggle('active', ap==='haneda');
+  document.getElementById('btn-narita-ap').classList.toggle('active', ap==='narita');
+  document.getElementById('emirates-airport-label').textContent = ap==='haneda' ? '羽田空港' : '成田空港';
+  document.getElementById('emirates-code-note').textContent = ap==='haneda'
+    ? 'コード: 2507889-0001 · 80km超で現収'
+    : 'コード: 2507689-0600 · 100km超で現収';
+  calc();
+}
+
+function setDir(d) {
+  state.dir = d;
+  document.getElementById('btn-up').classList.toggle('active', d==='up');
+  document.getElementById('btn-down').classList.toggle('active', d==='down');
+  calc();
+}
+
+function setPax(p) {
+  state.pax = p;
+  document.getElementById('btn-pax1').classList.toggle('active', p==='1');
+  document.getElementById('btn-pax2').classList.toggle('active', p==='2+');
+  calc();
+}
+
+function setUACars(n) {
+  state.uaCars = n;
+  document.getElementById('btn-car1').classList.toggle('active', n==='1');
+  document.getElementById('btn-car2').classList.toggle('active', n==='2');
+  calc();
+}
+
+function setMeet(v) {
+  state.meetFee = v;
+  document.getElementById('btn-meet0').classList.toggle('active', v==='');
+  document.getElementById('btn-meet5').classList.toggle('active', v==='5000');
+  document.getElementById('btn-meet8').classList.toggle('active', v==='8000');
+  calc();
+}
+
+// ============================================================
+// 時刻計算
+// ============================================================
+function timeDiffH(s, e) {
+  if (!s || !e) return null;
+  const [sh,sm] = s.split(':').map(Number);
+  const [eh,em] = e.split(':').map(Number);
+  let diff = (eh*60+em) - (sh*60+sm);
+  if (diff <= 0) diff += 24*60;
+  return diff/60;
+}
+
+function roundUpHalf(h) { return Math.ceil(h*2)/2; }
+
+function calcHireTimes() {
+  state.bookStart = document.getElementById('book-start').value;
+  state.bookEnd   = document.getElementById('book-end').value;
+  state.rideStart = document.getElementById('ride-start').value;
+  state.rideEnd   = document.getElementById('ride-end').value;
+
+  const bookH = timeDiffH(state.bookStart, state.bookEnd);
+  const rideH = timeDiffH(state.rideStart, state.rideEnd);
+
+  // 予約時間表示
+  const bookTag = document.getElementById('book-tag');
+  if (bookH != null) {
+    bookTag.style.display = 'block';
+    document.getElementById('book-tag-val').textContent = roundUpHalf(bookH).toFixed(1)+'h';
+  } else {
+    bookTag.style.display = 'none';
+  }
+
+  // 実乗車時間表示
+  const rideTag = document.getElementById('ride-tag');
+  if (rideH != null) {
+    rideTag.style.display = 'block';
+    document.getElementById('ride-tag-val').textContent = rideH.toFixed(1)+'h';
+  } else {
+    rideTag.style.display = 'none';
+  }
+
+  // 超過計算（予約終了 vs 実車終了）
+  let overtimeH = 0;
+  if (state.bookEnd && state.rideEnd) {
+    const [bh,bm] = state.bookEnd.split(':').map(Number);
+    const [rh,rm] = state.rideEnd.split(':').map(Number);
+    let diff = (rh*60+rm) - (bh*60+bm);
+    if (diff > 0) overtimeH = Math.ceil(diff/30)*0.5;
+  }
+
+  const otTag = document.getElementById('overtime-tag');
+  if (overtimeH > 0) {
+    const mk = state.member ? 'mem' : 'gen';
+    const otAmt = Math.floor(overtimeH/0.5) * HIRE_OT[state.car][mk];
+    otTag.style.display = 'block';
+    otTag.textContent = '⚠ 超過 '+overtimeH+'h → +'+fmt(otAmt);
+  } else {
+    otTag.style.display = 'none';
+  }
+
+  // フォールバック表示
+  document.getElementById('hire-fallback').style.display = bookH == null ? 'block' : 'none';
+
+  calc();
+}
+
+// ============================================================
+// 料金計算
+// ============================================================
+function fmt(n) {
+  if (n == null) return '－';
+  return '¥' + Math.round(n).toLocaleString('ja-JP');
+}
+
+function calcESD(h) { return Math.max(4000, Math.ceil(h)*2000); }
+
+function applyLate(v) { return state.lateNight ? Math.round(v*1.25) : v; }
+
+function getMK() { return state.member ? 'mem' : 'gen'; }
+
+function calcHaneda() {
+  const area = document.getElementById('h-area').value;
+  if (!area) return null;
+  const d = HANEDA[area]?.[state.car];
+  if (!d) return null;
+  const base = applyLate(d[getMK()]);
+  const ot = applyLate(Math.floor(parseFloat(document.getElementById('h-ot').value||0)/0.5) * HANEDA_OT[state.car][getMK()]);
+  const esdAmt = state.esd ? calcESD(1.5) : 0;
+  return base + ot + esdAmt;
+}
+
+function calcNarita() {
+  const d = NARITA[state.nType]?.[state.car];
+  if (!d) return null;
+  const base = d[getMK()];
+  if (base == null) return null;
+  const ot = applyLate(Math.floor(parseFloat(document.getElementById('n-ot').value||0)/0.5) * NARITA_OT[state.car][getMK()]);
+  const baseH = state.nType.includes('5H') ? 5 : state.nType.includes('3H') ? 3 : 2;
+  const esdAmt = state.esd ? calcESD(baseH) : 0;
+  return applyLate(base) + ot + esdAmt;
+}
+
+function calcHire() {
+  const mk = getMK();
+  const keyG = state.car==='luxury'?'lxG':state.car==='exec'?'exG':'ftG';
+  const keyM = state.car==='luxury'?'lxM':state.car==='exec'?'exM':'ftM';
+  const priceKey = state.member ? keyM : keyG;
+
+  const bookH = timeDiffH(state.bookStart, state.bookEnd);
+  const baseH = bookH != null ? roundUpHalf(bookH) : parseFloat(document.getElementById('hire-h').value||2);
+
+  const timeRow = HIRE_TABLE.find(r=>r.h===baseH) ?? [...HIRE_TABLE].reverse().find(r=>r.h<=baseH);
+  const timePrice = timeRow?.[priceKey] ?? null;
+
+  const km = parseFloat(document.getElementById('hire-km').value||'');
+  let distPrice = null;
+  if (!isNaN(km) && km > 0) {
+    const dr = [...HIRE_TABLE].reverse().find(r=>r.km<=km);
+    if (dr) distPrice = dr[priceKey];
+  }
+
+  const candidates = [timePrice, distPrice].filter(v=>v!=null);
+  if (candidates.length === 0) return null;
+  let base = Math.max(...candidates);
+
+  // 超過
+  let overtimeH = 0;
+  if (state.bookEnd && state.rideEnd) {
+    const [bh,bm] = state.bookEnd.split(':').map(Number);
+    const [rh,rm] = state.rideEnd.split(':').map(Number);
+    let diff = (rh*60+rm) - (bh*60+bm);
+    if (diff > 0) overtimeH = Math.ceil(diff/30)*0.5;
+  }
+  const otAmt = overtimeH > 0 ? Math.floor(overtimeH/0.5)*HIRE_OT[state.car][mk] : 0;
+
+  base = applyLate(base + otAmt);
+  const esdAmt = state.esd ? calcESD(baseH) : 0;
+
+  // 適用根拠表示
+  const infoBox = document.getElementById('hire-info');
+  if (timePrice != null || distPrice != null) {
+    infoBox.style.display = 'flex';
+    const adopted = (timePrice??0) >= (distPrice??0) ? '時間制' : '距離制';
+    document.getElementById('hire-info-label').textContent = '適用: '+adopted;
+    let sub = '';
+    if (timePrice != null) sub += ' 時間制'+fmt(timePrice);
+    if (distPrice != null) sub += ' 距離制'+fmt(distPrice);
+    document.getElementById('hire-info-sub').textContent = sub;
+  } else {
+    infoBox.style.display = 'none';
+  }
+
+  return base + esdAmt;
+}
+
+function calcContract() {
+  if (!state.contract) return null;
+
+  if (state.contract === 'united') {
+    return state.uaCars === '2' ? 12000 : 24000;
+  }
+
+  // エミレーツ
+  const ft = EMIRATES_FARE[state.emiratesAirport][state.dir];
+  const km = parseFloat(document.getElementById('contract-km').value||'');
+  if (isNaN(km) || km <= 0) return null;
+
+  const isMulti = state.pax === '2+';
+  let base;
+  if (!isMulti) {
+    base = ft.base1;
+  } else {
+    base = km <= ft.limitKm1 ? ft.base2 : ft.ext2;
+  }
+
+  let overKm = 0;
+  if (!isMulti && km > ft.limitKm1) overKm = km - ft.limitKm1;
+  else if (isMulti && km > ft.limitKm2) overKm = km - ft.limitKm2;
+
+  // 支払方法判定
+  const limit = isMulti ? ft.limitKm2 : ft.limitKm1;
+  const payNote = document.getElementById('payment-note');
+  const payText = document.getElementById('payment-note-text');
+  payNote.style.display = 'flex';
+  if (km <= limit) {
+    payNote.style.background = '#e8f5ee';
+    payNote.style.borderColor = '#a0d4b8';
+    payText.style.color = '#1a7a3a';
+    payText.textContent = '支払方法: 未収';
+  } else {
+    payNote.style.background = '#fde8e0';
+    payNote.style.borderColor = '#f0b0a0';
+    payText.style.color = '#c04020';
+    payText.textContent = '支払方法: 現収';
+  }
+
+  return base + (overKm > 0 ? Math.ceil(overKm)*ft.overRate : 0);
+}
+
+// ============================================================
+// メイン計算・表示
+// ============================================================
+function calc() {
+  let fareResult = null;
+  if (state.tab==='haneda')   fareResult = calcHaneda();
+  if (state.tab==='narita')   fareResult = calcNarita();
+  if (state.tab==='hire')     fareResult = calcHire();
+  if (state.tab==='contract') fareResult = calcContract();
+
+  const etc  = parseFloat(document.getElementById('highway-etc').value||0)||0;
+  const cash = parseFloat(document.getElementById('highway-cash').value||0)||0;
+  const meet = parseFloat(state.meetFee)||0;
+  const persons = document.getElementById('persons').value;
   const total = fareResult != null ? fareResult + etc + cash + meet : null;
 
-  // ハイヤー適用根拠
-  const hireInfo = (() => {
-    if (tab !== "hire") return null;
-    const keyG = car === "luxury" ? "lxG" : car === "exec" ? "exG" : "ftG";
-    const keyM = car === "luxury" ? "lxM" : car === "exec" ? "exM" : "ftM";
-    const priceKey = member ? keyM : keyG;
-    const baseH = bookH != null ? roundUpHalf(bookH) : hireH;
-    const timeRow = HIRE_TABLE.find(r => r.h === baseH) ?? [...HIRE_TABLE].reverse().find(r => r.h <= baseH);
-    const tp = timeRow?.[priceKey] ?? null;
-    const km = parseFloat(hireKm);
-    let dp = null;
-    if (!isNaN(km) && km > 0) {
-      const dr = [...HIRE_TABLE].reverse().find(r => r.km <= km);
-      if (dr) dp = dr[priceKey];
-    }
-    return { tp, dp, adopted: (tp ?? 0) >= (dp ?? 0) ? "時間制" : "距離制" };
-  })();
+  const box = document.getElementById('result-box');
+  if (total == null) {
+    box.innerHTML = '<div class="placeholder">条件を選択してください</div>';
+    return;
+  }
 
-  return (
-    <div style={s.root}>
-      {/* ヘッダー */}
-      <div style={s.header}>
-        <div style={s.logo}>MK</div>
-        <div>
-          <div style={s.h1}>ハイヤー料金計算</div>
-          <div style={s.h2}>2026.5.21〜 料金表準拠</div>
-        </div>
-      </div>
+  let html = '';
+  html += bdRow('運送料金', fmt(fareResult));
+  if (etc+cash > 0) html += bdRow('高速代', fmt(etc+cash));
+  if (meet > 0) html += bdRow('ミート料', fmt(meet));
+  if (persons) html += bdRow('人数', persons+'名');
+  if (state.lateNight && state.tab!=='contract') html += bdRow('深夜早朝', '25%増', true);
 
-      {/* タブ */}
-      <div style={s.tabBar}>
-        {[
-          { id: "haneda",   label: "羽田" },
-          { id: "narita",   label: "成田" },
-          { id: "hire",     label: "貸切" },
-          { id: "contract", label: "契約" },
-          { id: "rules",    label: "ルール" },
-        ].map(t => (
-          <button key={t.id}
-            style={{ ...s.tabBtn, ...(tab === t.id ? s.tabBtnOn : {}) }}
-            onClick={() => setTab(t.id)}>
-            {t.label}
-          </button>
-        ))}
-      </div>
+  html += '<div class="total-divider"></div>';
+  html += '<div class="total-label">合計（税込）</div>';
+  html += '<div class="total-amt">'+fmt(total)+'</div>';
 
-      <div style={s.body}>
-
-        {/* ===== 車種・区分（契約以外） ===== */}
-        {tab !== "contract" && (
-          <div style={s.section}>
-            <Row>
-              <Seg options={[
-                { k: "luxury", v: "ラグ" },
-                { k: "exec",   v: "エグゼ" },
-                { k: "first",  v: "ファースト" },
-              ]} val={car} set={setCar} />
-              <div style={{ width: 8 }} />
-              <Seg options={[
-                { k: false, v: "一般" },
-                { k: true,  v: "会員" },
-              ]} val={member} set={setMember} small />
-            </Row>
-            <div style={s.carNote}>
-              {car === "luxury" && "ベンツV / グランエース / アルファード"}
-              {car === "exec"   && "BMW7 / レクサスLM500 / ベンツS550・S400 / ハイエース"}
-              {car === "first"  && "ロールスロイス / マイバッハGLS600"}
-            </div>
-          </div>
-        )}
-
-        <div style={s.divider} />
-
-        {/* ===== 羽田 ===== */}
-        {tab === "haneda" && (
-          <div style={s.section}>
-            <Label>エリア</Label>
-            <select style={s.sel} value={hArea} onChange={e => setHArea(e.target.value)}>
-              <option value="">選択してください</option>
-              {Object.keys(HANEDA).map(a => <option key={a} value={a}>{a}</option>)}
-            </select>
-
-            <div style={{ height: 12 }} />
-            <Label>超過時間</Label>
-            <select style={s.sel} value={hOT} onChange={e => setHOT(Number(e.target.value))}>
-              {[0,0.5,1,1.5,2,2.5,3].map(v => (
-                <option key={v} value={v}>{v === 0 ? "なし" : `${v}h（+${fmt(Math.floor(v/0.5)*HANEDA_OT[car][mk()])}）`}</option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* ===== 成田 ===== */}
-        {tab === "narita" && (
-          <div style={s.section}>
-            <Label>送迎タイプ</Label>
-            <Seg options={Object.keys(NARITA).map(k => ({ k, v: k }))} val={nType} set={setNType} block />
-
-            <div style={{ height: 12 }} />
-            <Label>超過時間</Label>
-            <select style={s.sel} value={nOT} onChange={e => setNOT(Number(e.target.value))}>
-              {[0,0.5,1,1.5,2,2.5,3].map(v => (
-                <option key={v} value={v}>{v === 0 ? "なし" : `${v}h（+${fmt(Math.floor(v/0.5)*NARITA_OT[car][mk()])}）`}</option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* ===== ハイヤー貸切 ===== */}
-        {tab === "hire" && (
-          <div style={s.section}>
-            <div style={s.hireGrid}>
-              {/* 予約時刻 */}
-              <div>
-                <Label>予約時刻</Label>
-                <div style={s.timeRow}>
-                  <input type="time" value={bookStart} onChange={e => setBookStart(e.target.value)} style={s.timeIn} />
-                  <span style={s.arrow}>→</span>
-                  <input type="time" value={bookEnd} onChange={e => setBookEnd(e.target.value)} style={s.timeIn} />
-                </div>
-                {bookH != null && <div style={{ marginTop: 4 }}><span style={s.timeTag}>{roundUpHalf(bookH).toFixed(1)}h</span></div>}
-              </div>
-
-              {/* 実走距離 */}
-              <div>
-                <Label>実走距離（ドリップ）</Label>
-                <div style={s.inlineInput}>
-                  <input type="number" placeholder="例: 87" value={hireKm}
-                    onChange={e => setHireKm(e.target.value)} style={s.numIn} />
-                  <span style={s.unit}>km</span>
-                </div>
-              </div>
-
-              {/* 実乗車時刻 */}
-              <div>
-                <Label>実乗車時刻</Label>
-                <div style={s.timeRow}>
-                  <input type="time" value={rideStart} onChange={e => setRideStart(e.target.value)} style={s.timeIn} />
-                  <span style={s.arrow}>→</span>
-                  <input type="time" value={rideEnd} onChange={e => setRideEnd(e.target.value)} style={s.timeIn} />
-                </div>
-                {rideH != null && <div style={{ marginTop: 4 }}><span style={s.timeTag}>{rideH.toFixed(1)}h</span></div>}
-                {overtimeH > 0 && <div style={s.overtimeTag}>⚠ 超過{overtimeH}h +{fmt(Math.floor(overtimeH/0.5)*HIRE_OT[car][mk()])}</div>}
-              </div>
-
-              {/* 予約時刻未入力時フォールバック */}
-              {bookH == null && (
-                <div>
-                  <Label>予約時間（時刻未入力時）</Label>
-                  <select style={s.sel} value={hireH} onChange={e => setHireH(Number(e.target.value))}>
-                    {HIRE_TABLE.map(r => <option key={r.h} value={r.h}>{r.h}h（{r.km}km）</option>)}
-                  </select>
-                </div>
-              )}
-            </div>
-
-            {/* 適用根拠 */}
-            {hireInfo && (hireInfo.tp != null || hireInfo.dp != null) && (
-              <div style={s.infoBox}>
-                <span style={s.infoLabel}>適用: {hireInfo.adopted}</span>
-                {hireInfo.tp != null && <span style={s.infoSub}>時間制 {fmt(hireInfo.tp)}</span>}
-                {hireInfo.dp != null && <span style={s.infoSub}>距離制 {fmt(hireInfo.dp)}</span>}
-              </div>
-            )}
-
-            {/* オプション */}
-            <div style={{ height: 12 }} />
-            <Label>オプション</Label>
-            <Toggle val={lateNight} set={setLate} label="深夜早朝 22時〜翌5時（25%増）" />
-            <Toggle val={esd} set={setEsd} label="英語対応ドライバー ESD（¥2,000/h・最低¥4,000）" />
-          </div>
-        )}
-
-        {/* ===== 契約 ===== */}
-        {tab === "contract" && (() => {
-          const c = CONTRACTS[contractCode];
-          return (
-            <div style={s.section}>
-              <Label>契約先</Label>
-              <div style={s.codeList}>
-                {/* エミレーツ：1ボタンにまとめる */}
-                <button
-                  style={{ ...s.codeBtn, ...(contractCode === "emirates" ? s.codeBtnOn : {}) }}
-                  onClick={() => setContractCode("emirates")}>
-                  <span style={s.codeName}>エミレーツ航空</span>
-                  <span style={s.codeSub}>羽田 2507889-0001 / 成田 2507689-0600</span>
-                </button>
-                {/* ユナイテッド */}
-                <button
-                  style={{ ...s.codeBtn, ...(contractCode === "2574349-0009" ? s.codeBtnOn : {}) }}
-                  onClick={() => setContractCode("2574349-0009")}>
-                  <span style={s.codeName}>ユナイテッド航空（UAクルー）</span>
-                  <span style={s.codeSub}>成田 · 2574349-0009</span>
-                </button>
-              </div>
-
-              {/* エミレーツ選択時：羽田/成田切替 */}
-              {contractCode === "emirates" && (
-                <>
-                  <div style={{ height: 10 }} />
-                  <Label>空港</Label>
-                  <Seg options={[
-                    { k: "haneda", v: "羽田空港" },
-                    { k: "narita", v: "成田空港" },
-                  ]} val={emiratesAirport} set={setEmiratesAirport} />
-                  <div style={s.codeSubNote}>
-                    {emiratesAirport === "haneda"
-                      ? "コード: 2507889-0001 · 80km超で現収"
-                      : "コード: 2507689-0600 · 100km超で現収"}
-                  </div>
-                </>
-              )}
-
-              {/* 契約内容 */}
-              {resolvedCode && CONTRACTS[resolvedCode] && (() => {
-                const c = CONTRACTS[resolvedCode];
-                return <>
-                  <div style={s.contractCard}>
-                    <div style={s.contractName}>{c.name}
-                      <span style={s.contractAirport}>{c.airport}空港</span>
-                    </div>
-                    <div style={{ ...s.badge, ...(c.payment.includes("未収") ? s.badgeGreen : s.badgeRed) }}>
-                      {c.payment}
-                    </div>
-                  </div>
-
-                  {c.isFlat ? (
-                    <>
-                      <div style={{ height: 10 }} />
-                      <Label>台数</Label>
-                      <Seg options={[{ k:"1", v:"1台口 ¥24,000" }, { k:"2", v:"2台口 ¥12,000" }]}
-                        val={contractCars} set={setContractCars} />
-                    </>
-                  ) : (
-                    <>
-                      <div style={{ height: 10 }} />
-                      <Label>方向</Label>
-                      <Seg options={[{ k:"up", v:"△ 送り（UP）" }, { k:"down", v:"▲ 迎え（DOWN）" }]}
-                        val={contractDir} set={setContractDir} />
-
-                      <div style={{ height: 10 }} />
-                      <Label>乗車人数</Label>
-                      <Seg options={[{ k:"1", v:"1名様" }, { k:"2+", v:"2名様以上" }]}
-                        val={contractPax} set={setContractPax} />
-
-                      <div style={{ height: 10 }} />
-                      <Label>実走距離</Label>
-                      <div style={s.inlineInput}>
-                        <input type="number" placeholder="例: 87" value={contractKm}
-                          onChange={e => setContractKm(e.target.value)} style={s.numIn} />
-                        <span style={s.unit}>km</span>
-                      </div>
-
-                      {contractPaymentNote && (
-                        <div style={{ ...s.infoBox, background: contractPaymentNote.ok ? "#e8f5ee" : "#fde8e0", borderColor: contractPaymentNote.ok ? "#a0d4b8" : "#f0b0a0" }}>
-                          <span style={{ ...s.infoLabel, color: contractPaymentNote.ok ? "#1a7a3a" : "#c04020" }}>
-                            支払方法: {contractPaymentNote.type}
-                          </span>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  <div style={{ height: 14 }} />
-                  <Label>注意事項</Label>
-                  {c.notes.map((n, i) => (
-                    <div key={i} style={s.noteItem}>· {n}</div>
-                  ))}
-                </>;
-              })()}
-            </div>
-          );
-        })()}
-
-        {/* ===== 羽田・成田のオプション ===== */}
-        {(tab === "haneda" || tab === "narita") && (
-          <div style={s.section}>
-            <div style={s.divider} />
-            <div style={{ height: 4 }} />
-            <Toggle val={lateNight} set={setLate} label="深夜早朝 22時〜翌5時（25%増）" />
-            <Toggle val={esd} set={setEsd} label="英語対応ドライバー ESD（¥2,000/h・最低¥4,000）" />
-          </div>
-        )}
-
-        {/* ===== ルールブック ===== */}
-        {tab === "rules" && <RulesTab />}
-
-        {tab !== "rules" && <>
-          <div style={s.divider} />
-          <div style={s.section}>
-            <div style={s.commonGrid}>
-              <div style={s.commonItem}>
-                <Label>人数</Label>
-                <select style={{ ...s.sel, padding: "7px 8px", fontSize: 13 }}
-                  value={persons} onChange={e => setPersons(e.target.value)}>
-                  <option value="">—</option>
-                  {[1,2,3,4,5,6,7,8].map(n => (
-                    <option key={n} value={n}>{n}名</option>
-                  ))}
-                </select>
-              </div>
-              <div style={s.commonItem}>
-                <Label>ミート料</Label>
-                <Seg options={[
-                  { k: "",     v: "なし" },
-                  { k: "5000", v: "¥5,000" },
-                  { k: "8000", v: "¥8,000" },
-                ]} val={meetFee} set={setMeetFee} small />
-              </div>
-            </div>
-            <div style={{ height: 8 }} />
-            <Label>高速代</Label>
-            <div style={s.highwayRow}>
-              <div style={s.inlineInput}>
-                <span style={s.hwLabel}>ETC</span>
-                <input type="number" placeholder="0" value={highwayEtc}
-                  onChange={e => setHighwayEtc(e.target.value)} style={{ ...s.numIn, width: 90 }} />
-                <span style={s.unit}>円</span>
-              </div>
-              <div style={s.inlineInput}>
-                <span style={s.hwLabel}>立替金</span>
-                <input type="number" placeholder="0" value={highwayCash}
-                  onChange={e => setHighwayCash(e.target.value)} style={{ ...s.numIn, width: 90 }} />
-                <span style={s.unit}>円</span>
-              </div>
-            </div>
-          </div>
-
-          <div style={s.divider} />
-
-          {/* ===== 合計 ===== */}
-          <div style={s.resultBox}>
-            {total == null
-              ? <div style={s.placeholder}>条件を選択してください</div>
-              : <>
-                  <BdRow label="運送料金" val={fmt(fareResult)} />
-                  {(etc + cash) > 0 && <BdRow label="高速代" val={fmt(etc + cash)} sub={etc > 0 && cash > 0 ? `ETC ${fmt(etc)} + 立替 ${fmt(cash)}` : null} />}
-                  {meet > 0 && <BdRow label="ミート料" val={fmt(meet)} />}
-                  {persons && <BdRow label="人数" val={`${persons}名`} />}
-                  {lateNight && tab !== "contract" && <BdRow label="深夜早朝" val="25%増" accent />}
-                  {tab === "contract" && contractPaymentNote && (
-                    <BdRow label="支払方法" val={contractPaymentNote.type} accent={!contractPaymentNote.ok} />
-                  )}
-                  <div style={s.totalDivider} />
-                  <div style={s.totalLabel}>合計（税込）</div>
-                  <div style={s.totalAmt}>{fmt(total)}</div>
-                </>
-            }
-          </div>
-        </>}
-
-      </div>
-      <div style={s.footer}>MK Tokyo · HIRE 料金表 2026.5.21〜</div>
-    </div>
-  );
+  box.innerHTML = html;
 }
 
-// ---- ルールブック ----
-const RULES = [
-  {
-    cat: "羽田定額",
-    icon: "✈",
-    items: [
-      { title: "適用ルート", body: "羽田空港↔東京23区内の直行送迎のみ定額適用。途中経由がある場合は時間・距離制の貸切料金。" },
-      { title: "大田区特例", body: "目的地が「大田区羽田空港」の住所であれば、空港施設以外への送迎でも定額料金で対応。" },
-      { title: "超過発生条件", body: "空港送り（UP）：ご予約時間から送迎完了までが1.5時間を超える場合。\n空港お迎え（DOWN）：飛行機の到着時刻（NT）から送迎完了までが2時間を超える場合。" },
-      { title: "深夜早朝割増", body: "22時〜翌5時の間に開始〜終了がすべて収まる場合、基本料金の25%割増。超過料金が深夜帯にかかる場合は超過分のみ1.25倍。" },
-      { title: "高速道路料金", body: "実費別途請求。車両の回送に伴う高速代・回送代は請求不可。" },
-    ],
-  },
-  {
-    cat: "成田定額",
-    icon: "🛬",
-    items: [
-      { title: "適用ルート", body: "成田空港↔東京23区内の直行送迎のみ。経由地がある場合は貸切料金（回送代不可）。" },
-      { title: "成田市内ホテル", body: "目的地が「成田市内」のホテルであれば、空港施設以外への送迎でも成田定額料金で対応。" },
-      { title: "超過発生条件", body: "空港送り（UP）：ご予約開始時間から送迎完了までが2時間を超える場合。\n空港お迎え（DOWN）：飛行機の到着時刻（NT）から送迎完了までが3時間を超える場合。" },
-      { title: "ミートサービス", body: "成田空港へのお迎え（空港発）の際はミートサービス必須。担当者が到着ロビーにてネームボードを掲げてお迎え。駐車代込み¥8,000。" },
-      { title: "ロールスロイス", body: "ロールスロイスの場合、業務員によるロビーお迎えは不可。専門業者によるミートサービス対応。" },
-    ],
-  },
-  {
-    cat: "ハイヤー貸切",
-    icon: "🚘",
-    items: [
-      { title: "時間制 vs 距離制", body: "「時間に応じた料金」と「走行距離に応じた料金」を比較し、高い方を適用。" },
-      { title: "予約時間の保証", body: "実際の走行時間が予約時間を下回っても、予約時間ベースで請求。" },
-      { title: "超過料金", body: "実乗車時間が予約時間を超えた場合、超えた分を30分単位（切り上げ）で超過料金加算。" },
-      { title: "8時間ルール", body: "2026年5月21日より廃止。" },
-      { title: "深夜早朝割増", body: "22時〜翌5時の間に利用がかかる場合、基本料金の25%割増。ただし距離制が適用される場合は割増なし。" },
-      { title: "ESD（英語対応）", body: "基本料金：1時間あたり¥2,000、最低¥4,000〜。お迎えの待機開始（着陸時間）から最終降車時刻までの合計時間で算出。" },
-      { title: "キャンセル", body: "お申し出があった場合、原則として回送費およびミートサービス代は請求不可。ただし配車区域外へのお迎えで出庫後キャンセルの場合は所定費用を請求。" },
-    ],
-  },
-  {
-    cat: "経由・特殊ケース",
-    icon: "📍",
-    items: [
-      { title: "経由地あり（空港）", body: "空港→経由地：定額料金\n経由地→目的地：メーター料金\n両区間を合算して請求。" },
-      { title: "都外エリア", body: "東京都外（成田エリアを除く）への送迎は定額なし。すべて時間・距離制の貸切料金。" },
-      { title: "宿泊を伴う長距離", body: "乗務員が連泊する場合、宿泊代として1泊¥20,000を別途請求（繁忙期・地域により変動あり）。" },
-      { title: "チャイルドシート", body: "お子様用チャイルドシート・ブースターシート：1台¥1,000。予約時に事前申告が必要。" },
-    ],
-  },
-  {
-    cat: "エミレーツ航空",
-    icon: "🇦🇪",
-    items: [
-      { title: "羽田コード", body: "2507889-0001" },
-      { title: "成田コード", body: "2507689-0600" },
-      { title: "羽田 未収/現収判定", body: "1名：80kmまで未収、超えたら現収。\n2名以上：80km未満は未収、80〜120kmまで未収、120km超えは現収。" },
-      { title: "成田 未収/現収判定", body: "1名：100kmまで未収、超えたら現収。\n2名以上：100km未満は未収、100〜150kmまで未収、150km超えは現収。" },
-      { title: "超過料金", body: "上限距離を超えた分は1kmごとに¥500（端数切り上げ）。" },
-    ],
-  },
-  {
-    cat: "ユナイテッド航空",
-    icon: "✈",
-    items: [
-      { title: "コード", body: "2574349-0009" },
-      { title: "料金", body: "1台口：¥24,000 / 2台口：¥12,000（2台口は1台あたり¥12,000）" },
-      { title: "支払方法", body: "未収・ノーサイン" },
-      { title: "主要ホテル", body: "ほとんどがANAインターコンチネンタルホテル。名称が不明な場合もANA ICと判断。ストリングスホテル東京インターコンチネンタルも同じ契約料金。" },
-      { title: "使用路線", body: "飯倉（レインボーブリッジ・湾岸線B経由）または新空港IC（ANAインターコンチネンタルH送迎時）。" },
-      { title: "注意事項", body: "・クルー様の助手席への乗車禁止\n・3列目シートの片側跳ね上げ禁止\n・荷物が積み切れない場合は助手席に黒い布を被せて荷物置き場として使用\n・送迎最高速度100km/h" },
-      { title: "待機場所（成田第1）", body: "南ウイング側の14aで待機。2台の場合も14aで2台まで待機可能。先着車両と重なった場合はNTを確認し早い方が先。" },
-    ],
-  },
-];
-
-function RulesTab() {
-  const [openCat, setOpenCat] = useState(null);
-  const [search, setSearch] = useState("");
-
-  const filtered = RULES.map(cat => ({
-    ...cat,
-    items: cat.items.filter(item =>
-      !search || item.title.includes(search) || item.body.includes(search) || cat.cat.includes(search)
-    ),
-  })).filter(cat => cat.items.length > 0);
-
-  return (
-    <div style={{ padding: "12px 0" }}>
-      {/* 検索 */}
-      <div style={ruleS.searchBox}>
-        <span style={ruleS.searchIcon}>🔍</span>
-        <input
-          type="text"
-          placeholder="キーワードで検索..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={ruleS.searchInput}
-        />
-        {search && (
-          <button onClick={() => setSearch("")} style={ruleS.clearBtn}>✕</button>
-        )}
-      </div>
-
-      {filtered.length === 0 && (
-        <div style={{ textAlign: "center", color: C.muted, fontSize: 13, padding: "24px 0" }}>
-          該当するルールが見つかりません
-        </div>
-      )}
-
-      {filtered.map(cat => (
-        <div key={cat.cat} style={ruleS.catBlock}>
-          <button
-            style={ruleS.catHeader}
-            onClick={() => setOpenCat(openCat === cat.cat ? null : cat.cat)}>
-            <span style={ruleS.catIcon}>{cat.icon}</span>
-            <span style={ruleS.catName}>{cat.cat}</span>
-            <span style={ruleS.catChevron}>{openCat === cat.cat || search ? "▲" : "▼"}</span>
-          </button>
-
-          {(openCat === cat.cat || search) && (
-            <div style={ruleS.itemList}>
-              {cat.items.map((item, i) => (
-                <div key={i} style={ruleS.item}>
-                  <div style={ruleS.itemTitle}>{item.title}</div>
-                  <div style={ruleS.itemBody}>{item.body.split("\n").map((line, j) => (
-                    <div key={j}>{line}</div>
-                  ))}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-
-// ---- サブコンポーネント ----
-function Label({ children }) {
-  return <div style={sc.label}>{children}</div>;
-}
-
-function Row({ children }) {
-  return <div style={{ display: "flex", alignItems: "center", gap: 6 }}>{children}</div>;
-}
-
-function Seg({ options, val, set, small, block }) {
-  return (
-    <div style={{ display: "flex", gap: 5, flexWrap: block ? "wrap" : "nowrap" }}>
-      {options.map(o => (
-        <button key={String(o.k)}
-          style={{
-            ...sc.seg,
-            ...(String(val) === String(o.k) ? sc.segOn : {}),
-            fontSize: small ? 11 : 12,
-            padding: small ? "5px 10px" : "6px 12px",
-          }}
-          onClick={() => set(o.k)}>
-          {o.v}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function Toggle({ val, set, label }) {
-  return (
-    <div style={sc.toggleRow} onClick={() => set(!val)}>
-      <div style={{ ...sc.track, ...(val ? sc.trackOn : {}) }}>
-        <div style={{ ...sc.thumb, ...(val ? sc.thumbOn : {}) }} />
-      </div>
-      <span style={sc.toggleLabel}>{label}</span>
-    </div>
-  );
-}
-
-function BdRow({ label, val, sub, accent }) {
-  return (
-    <div style={sc.bdRow}>
-      <div>
-        <span style={sc.bdLabel}>{label}</span>
-        {sub && <div style={sc.bdSub}>{sub}</div>}
-      </div>
-      <span style={{ ...sc.bdVal, ...(accent ? { color: "#e07040" } : {}) }}>{val}</span>
-    </div>
-  );
+function bdRow(label, val, accent=false) {
+  return `<div class="bd-row"><span class="bd-label">${label}</span><span class="bd-val${accent?' accent':''}">${val}</span></div>`;
 }
 
 // ============================================================
-// カラー（白黒ゴールド）
+// ログイン
 // ============================================================
-const C = {
-  bg:      "#f5f4f0",
-  surface: "#ffffff",
-  card:    "#ffffff",
-  border:  "#e0ddd5",
-  borderDark: "#c8c4b8",
-  gold:    "#b8922a",
-  goldBg:  "#fdf3d8",
-  goldBorder: "#e8c96a",
-  text:    "#111111",
-  muted:   "#888880",
-  sub:     "#bbbbaa",
-  green:   "#d4f0e0",
-  greenT:  "#1a7a3a",
-  red:     "#fde8e0",
-  redT:    "#c04020",
-  orange:  "#c04020",
-};
+const AUTH = { id: 'tokyomk', pw: '5547' };
 
-// ============================================================
-// スタイル
-// ============================================================
-const s = {
-  root: {
-    minHeight: "100vh",
-    background: C.bg,
-    color: C.text,
-    fontFamily: "'Hiragino Sans', 'Noto Sans JP', sans-serif",
-    maxWidth: 480,
-    margin: "0 auto",
-    paddingBottom: 48,
-  },
-  header: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    padding: "16px 16px 12px",
-    background: C.surface,
-    borderBottom: `2px solid ${C.gold}`,
-  },
-  logo: {
-    width: 38, height: 38,
-    background: "#111",
-    borderRadius: 9,
-    display: "flex", alignItems: "center", justifyContent: "center",
-    fontWeight: 900, fontSize: 15, color: C.gold, letterSpacing: 1,
-    flexShrink: 0,
-  },
-  h1: { fontSize: 16, fontWeight: 800, color: "#111" },
-  h2: { fontSize: 10, color: C.muted, marginTop: 2, letterSpacing: 0.5 },
+function doLogin() {
+  const id = document.getElementById('login-id').value.trim();
+  const pw = document.getElementById('login-pw').value.trim();
+  if (id === AUTH.id && pw === AUTH.pw) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-app').style.display = 'block';
+    sessionStorage.setItem('mk_auth', '1');
+  } else {
+    document.getElementById('login-error').textContent = 'IDまたはパスワードが違います';
+    document.getElementById('login-pw').value = '';
+  }
+}
 
-  tabBar: {
-    display: "flex",
-    background: C.surface,
-    borderBottom: `1px solid ${C.border}`,
-  },
-  tabBtn: {
-    flex: 1,
-    background: "none",
-    border: "none",
-    borderBottom: "2px solid transparent",
-    color: C.muted,
-    fontSize: 13,
-    padding: "10px 4px",
-    cursor: "pointer",
-    fontFamily: "inherit",
-    fontWeight: 600,
-    transition: "all .15s",
-  },
-  tabBtnOn: {
-    color: C.gold,
-    borderBottom: `2px solid ${C.gold}`,
-  },
+// セッション中は再ログイン不要
+if (sessionStorage.getItem('mk_auth') === '1') {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'block';
+}
 
-  body: { padding: "0 14px" },
-  section: { padding: "12px 0" },
-  divider: { height: 1, background: C.border, margin: "2px 0" },
+// 起動
+init();
 
-  carNote: { fontSize: 10, color: C.muted, marginTop: 5 },
-
-  sel: {
-    width: "100%",
-    padding: "8px 10px",
-    borderRadius: 8,
-    background: C.surface,
-    border: `1px solid ${C.border}`,
-    color: C.text,
-    fontSize: 13,
-    fontFamily: "inherit",
-    outline: "none",
-  },
-
-  timeRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: 5,
-  },
-  timeIn: {
-    flex: 1,
-    padding: "7px 8px",
-    borderRadius: 8,
-    background: C.surface,
-    border: `1px solid ${C.border}`,
-    color: C.text,
-    fontSize: 14,
-    fontFamily: "inherit",
-    outline: "none",
-    minWidth: 0,
-  },
-  arrow: { color: C.muted, fontSize: 13, flexShrink: 0 },
-  timeTag: {
-    fontSize: 12, fontWeight: 700, color: C.gold,
-    flexShrink: 0, minWidth: 32, textAlign: "right",
-    background: C.goldBg, borderRadius: 5,
-    padding: "2px 6px",
-    border: `1px solid ${C.goldBorder}`,
-  },
-  overtimeTag: {
-    fontSize: 11, color: C.orange,
-    marginTop: 5, paddingLeft: 2,
-    fontWeight: 600,
-  },
-
-  // 貸切：時刻と距離の横並びグリッド
-  hireGrid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: 10,
-  },
-  hireGridFull: {
-    gridColumn: "1 / -1",
-  },
-
-  inlineInput: {
-    display: "flex", alignItems: "center", gap: 6,
-  },
-  numIn: {
-    flex: 1,
-    padding: "7px 10px",
-    borderRadius: 8,
-    background: C.surface,
-    border: `1px solid ${C.border}`,
-    color: C.text,
-    fontSize: 14,
-    fontFamily: "inherit",
-    outline: "none",
-  },
-  unit: { fontSize: 12, color: C.muted, flexShrink: 0 },
-
-  infoBox: {
-    marginTop: 8,
-    padding: "7px 11px",
-    borderRadius: 8,
-    background: C.goldBg,
-    border: `1px solid ${C.goldBorder}`,
-    display: "flex",
-    flexWrap: "wrap",
-    gap: 6,
-    alignItems: "center",
-  },
-  infoLabel: { fontSize: 12, fontWeight: 700, color: C.gold },
-  infoSub:   { fontSize: 11, color: C.muted },
-
-  codeList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 6,
-    marginTop: 10,
-  },
-  codeBtn: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    padding: "9px 12px",
-    borderRadius: 9,
-    background: C.surface,
-    border: `1px solid ${C.border}`,
-    color: C.muted,
-    cursor: "pointer",
-    fontFamily: "inherit",
-    textAlign: "left",
-    transition: "all .15s",
-  },
-  codeBtnOn: { border: `1px solid ${C.gold}`, background: C.goldBg },
-  codeName:  { fontSize: 13, fontWeight: 700, color: C.text },
-  codeSub:   { fontSize: 10, color: C.muted, marginTop: 2 },
-
-  contractCard: {
-    marginTop: 10,
-    padding: "10px 14px",
-    borderRadius: 9,
-    background: C.surface,
-    border: `1px solid ${C.border}`,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 8,
-  },
-  contractName:    { fontSize: 14, fontWeight: 700 },
-  contractAirport: { fontSize: 11, color: C.muted, fontWeight: 400, marginLeft: 6 },
-  badge: {
-    fontSize: 11, fontWeight: 700,
-    padding: "3px 9px", borderRadius: 5,
-    flexShrink: 0,
-  },
-  badgeGreen: { background: C.green, color: C.greenT },
-  badgeRed:   { background: C.red,   color: C.redT },
-
-  noteItem: { fontSize: 11, color: C.muted, lineHeight: 1.7, paddingLeft: 2 },
-  codeSubNote: { fontSize: 11, color: C.muted, marginTop: 6, paddingLeft: 2 },
-
-  commonGrid: {
-    display: "flex",
-    gap: 16,
-    alignItems: "flex-start",
-  },
-  commonItem: { display: "flex", flexDirection: "column", gap: 6 },
-  highwayRow: { display: "flex", gap: 12, flexWrap: "wrap" },
-  hwLabel:    { fontSize: 12, color: C.muted, flexShrink: 0, minWidth: 36 },
-
-  resultBox: {
-    padding: "14px 0 8px",
-  },
-  placeholder: { color: C.muted, fontSize: 13, textAlign: "center", padding: "12px 0" },
-  totalDivider: { height: 2, background: "#111", margin: "10px 0 12px" },
-  totalLabel: {
-    fontSize: 10, color: C.muted, letterSpacing: 1.2,
-    textTransform: "uppercase", textAlign: "center", marginBottom: 6, fontWeight: 600,
-  },
-  totalAmt: {
-    fontSize: 48, fontWeight: 900,
-    color: "#111", letterSpacing: -1, lineHeight: 1,
-    textAlign: "center",
-  },
-
-  footer: {
-    textAlign: "center", color: C.sub,
-    fontSize: 10, letterSpacing: 0.8, paddingTop: 20,
-  },
-};
-
-// サブコンポーネント用スタイル
-const sc = {
-  label: {
-    fontSize: 10, color: C.muted,
-    letterSpacing: 1.2, textTransform: "uppercase",
-    fontWeight: 700, marginBottom: 5,
-  },
-  seg: {
-    borderRadius: 7,
-    background: C.surface,
-    border: `1px solid ${C.border}`,
-    color: C.muted,
-    cursor: "pointer",
-    fontFamily: "inherit",
-    fontWeight: 600,
-    transition: "all .12s",
-    whiteSpace: "nowrap",
-  },
-  segOn: {
-    background: "#111",
-    border: `1px solid #111`,
-    color: C.gold,
-    fontWeight: 700,
-  },
-  toggleRow: {
-    display: "flex", alignItems: "center",
-    gap: 10, cursor: "pointer", marginBottom: 8,
-  },
-  track: {
-    width: 34, height: 20, borderRadius: 10,
-    background: C.border, position: "relative", flexShrink: 0,
-    transition: "background .2s",
-    border: `1px solid ${C.borderDark}`,
-  },
-  trackOn: { background: "#111", border: "1px solid #111" },
-  thumb: {
-    width: 14, height: 14, borderRadius: "50%",
-    background: "#fff", position: "absolute", top: 2, left: 2,
-    transition: "left .2s",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-  },
-  thumbOn: { left: 16 },
-  toggleLabel: { fontSize: 12, color: C.text, lineHeight: 1.4 },
-  bdRow: {
-    display: "flex", justifyContent: "space-between",
-    alignItems: "flex-start", padding: "5px 0",
-  },
-  bdLabel: { fontSize: 12, color: C.muted },
-  bdSub:   { fontSize: 10, color: C.sub, marginTop: 2 },
-  bdVal:   { fontSize: 14, color: C.text, fontWeight: 700 },
-};
-
-const ruleS = {
-  searchBox: {
-    display: "flex", alignItems: "center", gap: 8,
-    background: "#fff", border: `1px solid ${C.border}`,
-    borderRadius: 10, padding: "8px 12px", marginBottom: 12,
-  },
-  searchIcon: { fontSize: 14, flexShrink: 0 },
-  searchInput: {
-    flex: 1, border: "none", outline: "none",
-    fontSize: 14, fontFamily: "inherit",
-    background: "transparent", color: C.text,
-  },
-  clearBtn: {
-    border: "none", background: "none", color: C.muted,
-    cursor: "pointer", fontSize: 13, padding: "0 2px",
-  },
-  catBlock: {
-    marginBottom: 8, borderRadius: 10, overflow: "hidden",
-    border: `1px solid ${C.border}`, background: "#fff",
-  },
-  catHeader: {
-    width: "100%", display: "flex", alignItems: "center",
-    gap: 10, padding: "11px 14px", background: "none",
-    border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
-  },
-  catIcon: { fontSize: 16, flexShrink: 0 },
-  catName: { flex: 1, fontSize: 14, fontWeight: 700, color: C.text },
-  catChevron: { fontSize: 11, color: C.muted },
-  itemList: { borderTop: `1px solid ${C.border}` },
-  item: { padding: "10px 14px", borderBottom: `1px solid ${C.bg}` },
-  itemTitle: { fontSize: 12, fontWeight: 700, color: C.gold, marginBottom: 4 },
-  itemBody: { fontSize: 12, color: C.text, lineHeight: 1.7 },
-};
-
-// ============================================================
-// スタイル
-// ============================================================
-
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-  </script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js');
-      });
-    }
-  </script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+}
+</script>
 </body>
 </html>
