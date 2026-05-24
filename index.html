@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="MK料金" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <title>MK ハイヤー料金計算</title>
+  <title>MK 料金計算</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
     body{background:#f5f4f0;font-family:'Hiragino Sans','Noto Sans JP',sans-serif;color:#111;max-width:480px;margin:0 auto;padding-bottom:48px;}
@@ -17,7 +17,7 @@
     input,select,button{font-family:inherit;}
 
     /* LOGIN */
-    .login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#f5f4f0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;padding:32px;}
+    .login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#f5f4f0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;padding:32px;max-width:480px;margin:0 auto;left:50%;transform:translateX(-50%);}
     .login-logo{width:72px;height:72px;background:#111;border-radius:18px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:28px;color:#b8922a;letter-spacing:2px;margin-bottom:12px;}
     .login-title{font-size:18px;font-weight:800;color:#111;margin-bottom:4px;}
     .login-sub{font-size:11px;color:#888;margin-bottom:40px;letter-spacing:.5px;}
@@ -36,7 +36,7 @@
 
     /* TABS */
     .tab-bar{display:flex;background:#fff;border-bottom:1px solid #e0ddd5;overflow-x:auto;}
-    .tab-btn{flex:1;min-width:60px;background:none;border:none;border-bottom:2px solid transparent;color:#888;font-size:12px;padding:10px 4px;cursor:pointer;font-weight:600;white-space:nowrap;}
+    .tab-btn{flex:1;min-width:55px;background:none;border:none;border-bottom:2px solid transparent;color:#888;font-size:12px;padding:10px 2px;cursor:pointer;font-weight:600;white-space:nowrap;}
     .tab-btn.active{color:#b8922a;border-bottom:2px solid #b8922a;}
 
     /* BODY */
@@ -51,6 +51,7 @@
     .seg-btn{padding:6px 12px;border-radius:7px;background:#fff;border:1px solid #e0ddd5;color:#888;font-size:12px;cursor:pointer;font-weight:600;transition:all .12s;}
     .seg-btn.active{background:#111;border-color:#111;color:#b8922a;font-weight:700;}
     .seg-btn.small{padding:5px 10px;font-size:11px;}
+    .seg-btn.gold.active{background:#b8922a;border-color:#b8922a;color:#fff;}
 
     /* INPUTS */
     select.inp{width:100%;padding:8px 10px;border-radius:8px;background:#fff;border:1px solid #e0ddd5;color:#111;font-size:13px;outline:none;-webkit-appearance:none;}
@@ -128,6 +129,11 @@
     .item-title{font-size:12px;font-weight:700;color:#b8922a;margin-bottom:4px;}
     .item-body{font-size:12px;color:#111;line-height:1.7;}
 
+    /* TYPE SWITCHER */
+    .type-switch{display:flex;background:#f5f4f0;border-radius:9px;padding:3px;margin-bottom:12px;border:1px solid #e0ddd5;}
+    .type-switch-btn{flex:1;padding:7px;border-radius:7px;border:none;background:none;font-size:12px;font-weight:600;color:#888;cursor:pointer;transition:all .15s;}
+    .type-switch-btn.active{background:#fff;color:#111;box-shadow:0 1px 3px rgba(0,0,0,.1);}
+
     .footer{text-align:center;color:#bbb;font-size:10px;letter-spacing:.8px;padding-top:20px;}
     .spacer{height:10px;}
     .spacer-sm{height:6px;}
@@ -138,7 +144,7 @@
 <!-- ログイン画面 -->
 <div class="login-screen" id="login-screen">
   <div class="login-logo">MK</div>
-  <div class="login-title">ハイヤー料金計算</div>
+  <div class="login-title">MK 料金計算</div>
   <div class="login-sub">2026.5.21〜 料金表準拠</div>
   <div class="login-field">
     <label>ID</label>
@@ -152,32 +158,34 @@
   <div class="login-error" id="login-error"></div>
 </div>
 
-<!-- メインアプリ（ログイン後に表示） -->
+<!-- メインアプリ -->
 <div id="main-app" style="display:none">
+
+<div class="header">
   <div class="logo">MK</div>
   <div>
-    <div class="h1">ハイヤー料金計算</div>
+    <div class="h1">MK 料金計算</div>
     <div class="h2">2026.5.21〜 料金表準拠</div>
   </div>
 </div>
 
 <div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('haneda')">羽田</button>
-  <button class="tab-btn" onclick="switchTab('narita')">成田</button>
-  <button class="tab-btn" onclick="switchTab('hire')">貸切</button>
-  <button class="tab-btn" onclick="switchTab('contract')">契約</button>
-  <button class="tab-btn" onclick="switchTab('rules')">ルール</button>
+  <button class="tab-btn active" onclick="switchTab('haneda',this)">羽田</button>
+  <button class="tab-btn" onclick="switchTab('narita',this)">成田</button>
+  <button class="tab-btn" onclick="switchTab('hire',this)">貸切</button>
+  <button class="tab-btn" onclick="switchTab('contract',this)">契約</button>
+  <button class="tab-btn" onclick="switchTab('rules',this)">ルール</button>
 </div>
 
 <div class="body">
 
-  <!-- 車種・区分 (契約・ルール以外) -->
+  <!-- 車種・区分（契約・ルール以外） -->
   <div id="car-section" class="section">
     <div class="seg-group">
       <button class="seg-btn active" onclick="setCar('luxury')">ラグ</button>
       <button class="seg-btn" onclick="setCar('exec')">エグゼ</button>
       <button class="seg-btn" onclick="setCar('first')">ファースト</button>
-      <div style="width:8px"></div>
+      <div style="width:6px"></div>
       <button class="seg-btn active" id="btn-gen" onclick="setMember(false)">一般</button>
       <button class="seg-btn" id="btn-mem" onclick="setMember(true)">会員</button>
     </div>
@@ -185,70 +193,192 @@
   </div>
   <div id="car-divider" class="divider"></div>
 
-  <!-- 羽田 -->
+  <!-- ===== 羽田 ===== -->
   <div id="tab-haneda" class="section">
-    <div class="label">エリア</div>
-    <select class="inp" id="h-area" onchange="calc()">
-      <option value="">選択してください</option>
-      <option value="大田・品川">大田・品川</option>
-      <option value="江東・港">江東・港</option>
-      <option value="中央・千代田・荒川・渋谷・新宿・墨田・台東・文京・目黒">中央・千代田・荒川・渋谷・新宿・墨田・台東・文京・目黒</option>
-      <option value="足立・板橋・江戸川・葛飾・杉並・世田谷・豊島・中野">足立・板橋・江戸川・葛飾・杉並・世田谷・豊島・中野</option>
-      <option value="練馬・北">練馬・北</option>
-    </select>
-    <div class="spacer"></div>
-    <div class="label">超過時間</div>
-    <select class="inp" id="h-ot" onchange="calc()">
-      <option value="0">なし</option>
-      <option value="0.5">0.5h</option>
-      <option value="1">1h</option>
-      <option value="1.5">1.5h</option>
-      <option value="2">2h</option>
-      <option value="2.5">2.5h</option>
-      <option value="3">3h</option>
-    </select>
-    <div class="spacer"></div>
-    <div class="toggle-row" onclick="toggleLate()">
-      <div class="toggle-track" id="track-late"><div class="toggle-thumb"></div></div>
-      <span class="toggle-label">深夜早朝 22時〜翌5時（25%増）</span>
+    <!-- ハイヤー/タクシー切替 -->
+    <div class="type-switch">
+      <button class="type-switch-btn active" id="h-type-hire" onclick="setHType('hire')">ハイヤー定額</button>
+      <button class="type-switch-btn" id="h-type-taxi" onclick="setHType('taxi')">タクシー定額</button>
     </div>
-    <div class="toggle-row" onclick="toggleEsd()">
-      <div class="toggle-track" id="track-esd"><div class="toggle-thumb"></div></div>
-      <span class="toggle-label">英語対応ドライバー ESD（¥2,000/h・最低¥4,000）</span>
+
+    <!-- ハイヤー -->
+    <div id="h-hire-section">
+      <div class="label">エリア</div>
+      <select class="inp" id="h-area" onchange="calc()">
+        <option value="">選択してください</option>
+        <option value="大田・品川">大田・品川</option>
+        <option value="江東・港">江東・港</option>
+        <option value="中央・千代田・荒川・渋谷・新宿・墨田・台東・文京・目黒">中央・千代田・荒川・渋谷・新宿・墨田・台東・文京・目黒</option>
+        <option value="足立・板橋・江戸川・葛飾・杉並・世田谷・豊島・中野">足立・板橋・江戸川・葛飾・杉並・世田谷・豊島・中野</option>
+        <option value="練馬・北">練馬・北</option>
+      </select>
+      <div class="spacer"></div>
+      <div class="label">超過時間</div>
+      <select class="inp" id="h-ot" onchange="calc()">
+        <option value="0">なし</option>
+        <option value="0.5">0.5h</option>
+        <option value="1">1h</option>
+        <option value="1.5">1.5h</option>
+        <option value="2">2h</option>
+        <option value="2.5">2.5h</option>
+        <option value="3">3h</option>
+      </select>
+    </div>
+
+    <!-- タクシー -->
+    <div id="h-taxi-section" style="display:none">
+      <div class="label">エリア（区）</div>
+      <select class="inp" id="h-taxi-area" onchange="calc()">
+        <option value="">選択してください</option>
+        <option value="千代田区">千代田区</option>
+        <option value="渋谷区">渋谷区</option>
+        <option value="江戸川区">江戸川区</option>
+        <option value="新宿区">新宿区</option>
+        <option value="墨田区">墨田区</option>
+        <option value="台東区">台東区</option>
+        <option value="文京区">文京区</option>
+        <option value="中野区">中野区</option>
+        <option value="荒川区">荒川区</option>
+        <option value="杉並区">杉並区</option>
+        <option value="北区">北区</option>
+        <option value="足立区">足立区</option>
+        <option value="豊島区">豊島区</option>
+        <option value="葛飾区">葛飾区</option>
+        <option value="板橋区">板橋区</option>
+        <option value="練馬区">練馬区</option>
+        <option value="三鷹市">三鷹市</option>
+        <option value="武蔵野市">武蔵野市</option>
+      </select>
+      <div class="spacer"></div>
+      <div class="label">超過時間（30分ごと ¥2,700）</div>
+      <select class="inp" id="h-taxi-ot" onchange="calc()">
+        <option value="0">なし</option>
+        <option value="0.5">0.5h（+¥2,700）</option>
+        <option value="1">1h（+¥5,400）</option>
+        <option value="1.5">1.5h（+¥8,100）</option>
+        <option value="2">2h（+¥10,800）</option>
+        <option value="2.5">2.5h（+¥13,500）</option>
+        <option value="3">3h（+¥16,200）</option>
+      </select>
+    </div>
+
+    <div class="spacer"></div>
+    <!-- オプション共通 -->
+    <div class="label">オプション</div>
+    <div class="toggle-row" onclick="toggleLate()">
+      <div class="toggle-track" id="track-late-h"><div class="toggle-thumb"></div></div>
+      <span class="toggle-label">深夜早朝 22時〜翌5時</span>
+    </div>
+    <div id="h-hire-opts">
+      <div class="toggle-row" onclick="toggleEsd()">
+        <div class="toggle-track" id="track-esd-h"><div class="toggle-thumb"></div></div>
+        <span class="toggle-label">ESD（¥2,000/h・最低¥4,000）</span>
+      </div>
+    </div>
+    <div id="h-taxi-opts" style="display:none">
+      <div class="toggle-row" onclick="toggleOpt('yoyaku')">
+        <div class="toggle-track" id="track-yoyaku"><div class="toggle-thumb"></div></div>
+        <span class="toggle-label">予約配車（+¥1,000）</span>
+      </div>
+      <div class="toggle-row" onclick="toggleOpt('hg')">
+        <div class="toggle-track" id="track-hg"><div class="toggle-thumb"></div></div>
+        <span class="toggle-label">HG指定（+¥2,000）※予約配車不可</span>
+      </div>
+      <div class="toggle-row" onclick="toggleOpt('esd-taxi')">
+        <div class="toggle-track" id="track-esd-taxi"><div class="toggle-thumb"></div></div>
+        <span class="toggle-label">ESD（+¥2,000/1H毎）</span>
+      </div>
+      <div id="esd-taxi-hours-row" style="display:none">
+        <div class="label">ESD 時間数</div>
+        <div class="inline-row">
+          <input type="number" class="inp" id="esd-taxi-hours" placeholder="例: 2" oninput="calc()" style="width:80px">
+          <span class="unit">h</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- 成田 -->
+  <!-- ===== 成田 ===== -->
   <div id="tab-narita" class="section" style="display:none">
-    <div class="label">送迎タイプ</div>
-    <div class="seg-group" id="narita-type-btns">
-      <button class="seg-btn active" onclick="setNaritaType('送迎（通り/2H）')">通り/2H</button>
-      <button class="seg-btn" onclick="setNaritaType('送迎（迎え/3H）')">迎え/3H</button>
-      <button class="seg-btn" onclick="setNaritaType('送迎（往復/5H）')">往復/5H</button>
+    <!-- ハイヤー/タクシー切替 -->
+    <div class="type-switch">
+      <button class="type-switch-btn active" id="n-type-hire" onclick="setNType('hire')">ハイヤー定額</button>
+      <button class="type-switch-btn" id="n-type-taxi" onclick="setNType('taxi')">タクシー定額</button>
     </div>
+
+    <!-- ハイヤー -->
+    <div id="n-hire-section">
+      <div class="label">送迎タイプ</div>
+      <div class="seg-group" id="narita-type-btns">
+        <button class="seg-btn active" onclick="setNaritaType('送迎（通り/2H）')">通り/2H</button>
+        <button class="seg-btn" onclick="setNaritaType('送迎（迎え/3H）')">迎え/3H</button>
+        <button class="seg-btn" onclick="setNaritaType('送迎（往復/5H）')">往復/5H</button>
+      </div>
+      <div class="spacer"></div>
+      <div class="label">超過時間</div>
+      <select class="inp" id="n-ot" onchange="calc()">
+        <option value="0">なし</option>
+        <option value="0.5">0.5h</option>
+        <option value="1">1h</option>
+        <option value="1.5">1.5h</option>
+        <option value="2">2h</option>
+        <option value="2.5">2.5h</option>
+        <option value="3">3h</option>
+      </select>
+    </div>
+
+    <!-- タクシー -->
+    <div id="n-taxi-section" style="display:none">
+      <div class="label">エリア（ゾーン）</div>
+      <select class="inp" id="n-taxi-area" onchange="calc()">
+        <option value="">選択してください</option>
+        <option value="A">A：江戸川区・葛飾区・墨田区・江東区・台場地区</option>
+        <option value="B">B：足立区・荒川区・台東区・中央区・千代田区・文京区</option>
+        <option value="C">C：大田区・北区・渋谷区・品川区・新宿区・豊島区・目黒区・港区</option>
+        <option value="D">D：板橋区・杉並区・中野区・世田谷区・練馬区・武蔵野市・三鷹市</option>
+      </select>
+      <div class="spacer"></div>
+      <div class="label">超過時間（30分ごと ¥2,700）</div>
+      <select class="inp" id="n-taxi-ot" onchange="calc()">
+        <option value="0">なし</option>
+        <option value="0.5">0.5h（+¥2,700）</option>
+        <option value="1">1h（+¥5,400）</option>
+        <option value="1.5">1.5h（+¥8,100）</option>
+        <option value="2">2h（+¥10,800）</option>
+        <option value="2.5">2.5h（+¥13,500）</option>
+        <option value="3">3h（+¥16,200）</option>
+      </select>
+    </div>
+
     <div class="spacer"></div>
-    <div class="label">超過時間</div>
-    <select class="inp" id="n-ot" onchange="calc()">
-      <option value="0">なし</option>
-      <option value="0.5">0.5h</option>
-      <option value="1">1h</option>
-      <option value="1.5">1.5h</option>
-      <option value="2">2h</option>
-      <option value="2.5">2.5h</option>
-      <option value="3">3h</option>
-    </select>
-    <div class="spacer"></div>
+    <div class="label">オプション</div>
     <div class="toggle-row" onclick="toggleLate()">
       <div class="toggle-track" id="track-late-n"><div class="toggle-thumb"></div></div>
-      <span class="toggle-label">深夜早朝 22時〜翌5時（25%増）</span>
+      <span class="toggle-label">深夜早朝 22時〜翌5時</span>
     </div>
-    <div class="toggle-row" onclick="toggleEsd()">
-      <div class="toggle-track" id="track-esd-n"><div class="toggle-thumb"></div></div>
-      <span class="toggle-label">英語対応ドライバー ESD（¥2,000/h・最低¥4,000）</span>
+    <div id="n-hire-opts">
+      <div class="toggle-row" onclick="toggleEsd()">
+        <div class="toggle-track" id="track-esd-n"><div class="toggle-thumb"></div></div>
+        <span class="toggle-label">ESD（¥2,000/h・最低¥4,000）</span>
+      </div>
+    </div>
+    <div id="n-taxi-opts" style="display:none">
+      <div class="toggle-row" onclick="toggleOpt('yoyaku-n')">
+        <div class="toggle-track" id="track-yoyaku-n"><div class="toggle-thumb"></div></div>
+        <span class="toggle-label">予約配車（+¥1,000）</span>
+      </div>
+      <div class="toggle-row" onclick="toggleOpt('hg-n')">
+        <div class="toggle-track" id="track-hg-n"><div class="toggle-thumb"></div></div>
+        <span class="toggle-label">HG指定（+¥2,000）※予約配車不可</span>
+      </div>
+      <div class="toggle-row" onclick="toggleOpt('esd-taxi-n')">
+        <div class="toggle-track" id="track-esd-taxi-n"><div class="toggle-thumb"></div></div>
+        <span class="toggle-label">ESD（+¥5,000/1台毎）</span>
+      </div>
     </div>
   </div>
 
-  <!-- ハイヤー貸切 -->
+  <!-- ===== ハイヤー貸切 ===== -->
   <div id="tab-hire" class="section" style="display:none">
     <div class="hire-grid">
       <div>
@@ -289,16 +419,16 @@
     <div class="spacer"></div>
     <div class="label">オプション</div>
     <div class="toggle-row" onclick="toggleLate()">
-      <div class="toggle-track" id="track-late-h"><div class="toggle-thumb"></div></div>
+      <div class="toggle-track" id="track-late-hire"><div class="toggle-thumb"></div></div>
       <span class="toggle-label">深夜早朝 22時〜翌5時（25%増）</span>
     </div>
     <div class="toggle-row" onclick="toggleEsd()">
-      <div class="toggle-track" id="track-esd-h"><div class="toggle-thumb"></div></div>
+      <div class="toggle-track" id="track-esd-hire"><div class="toggle-thumb"></div></div>
       <span class="toggle-label">英語対応ドライバー ESD（¥2,000/h・最低¥4,000）</span>
     </div>
   </div>
 
-  <!-- 契約 -->
+  <!-- ===== 契約 ===== -->
   <div id="tab-contract" class="section" style="display:none">
     <div class="label">契約先</div>
     <div class="code-list">
@@ -311,8 +441,6 @@
         <span class="code-sub">成田 · 2574349-0009</span>
       </button>
     </div>
-
-    <!-- エミレーツ詳細 -->
     <div id="emirates-detail" style="display:none">
       <div class="spacer"></div>
       <div class="label">空港</div>
@@ -350,10 +478,8 @@
       <div class="label">注意事項</div>
       <div id="emirates-notes"></div>
     </div>
-
-    <!-- ユナイテッド詳細 -->
     <div id="united-detail" style="display:none">
-      <div class="contract-card">
+      <div class="contract-card" style="margin-top:10px">
         <div class="contract-name">ユナイテッド航空 <span class="contract-airport">成田空港</span></div>
         <div class="badge green">未収・ノーサイン</div>
       </div>
@@ -369,7 +495,7 @@
     </div>
   </div>
 
-  <!-- ルール -->
+  <!-- ===== ルール ===== -->
   <div id="tab-rules" class="section" style="display:none">
     <div class="search-box">
       <span class="cat-icon">🔍</span>
@@ -379,6 +505,7 @@
     <div id="rules-container"></div>
   </div>
 
+  <!-- ===== 共通項目（ルール以外） ===== -->
   <div id="common-section">
     <div class="divider"></div>
     <div class="section">
@@ -420,39 +547,100 @@
           <span class="unit">円</span>
         </div>
       </div>
+      <!-- 貸切：回送高速 -->
+      <div id="hire-highway-row" style="display:none">
+        <div class="spacer"></div>
+        <div class="label">回送高速</div>
+        <div class="inline-row">
+          <input type="number" class="inp" id="hire-highway-kaiso" placeholder="0" oninput="calc()" style="width:130px">
+          <span class="unit">円</span>
+        </div>
+      </div>
     </div>
     <div class="divider"></div>
-
-    <!-- 結果 -->
     <div class="result-box" id="result-box">
       <div class="placeholder">条件を選択してください</div>
     </div>
   </div>
 
-</div>
-<div class="footer">MK Tokyo · HIRE 料金表 2026.5.21〜</div>
+</div><!-- /body -->
+<div class="footer">MK Tokyo · 料金表 2026.5.21〜</div>
 </div><!-- /main-app -->
 
 <script>
 // ============================================================
+// 認証
+// ============================================================
+const AUTH = { id: 'tokyomk', pw: '5547' };
+function doLogin() {
+  const id = document.getElementById('login-id').value.trim();
+  const pw = document.getElementById('login-pw').value.trim();
+  if (id === AUTH.id && pw === AUTH.pw) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-app').style.display = 'block';
+    sessionStorage.setItem('mk_auth', '1');
+  } else {
+    document.getElementById('login-error').textContent = 'IDまたはパスワードが違います';
+    document.getElementById('login-pw').value = '';
+  }
+}
+if (sessionStorage.getItem('mk_auth') === '1') {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'block';
+}
+
+// ============================================================
 // データ
 // ============================================================
-const HANEDA = {
+const HANEDA_HIRE = {
   "大田・品川":           { luxury:{gen:17000,mem:15300}, exec:{gen:19000,mem:17100}, first:{gen:40000,mem:36000} },
   "江東・港":             { luxury:{gen:19000,mem:17100}, exec:{gen:21000,mem:18900}, first:{gen:40000,mem:36000} },
   "中央・千代田・荒川・渋谷・新宿・墨田・台東・文京・目黒": { luxury:{gen:23000,mem:20700}, exec:{gen:25000,mem:22500}, first:{gen:40000,mem:36000} },
   "足立・板橋・江戸川・葛飾・杉並・世田谷・豊島・中野":     { luxury:{gen:26000,mem:23400}, exec:{gen:31000,mem:27900}, first:{gen:40000,mem:36000} },
   "練馬・北":             { luxury:{gen:31000,mem:27900}, exec:{gen:35000,mem:31500}, first:{gen:40000,mem:36000} },
 };
-const HANEDA_OT = {
+const HANEDA_HIRE_OT = {
   luxury:{gen:4000,mem:3600}, exec:{gen:4500,mem:4050}, first:{gen:10000,mem:9000}
 };
-const NARITA = {
+
+// 羽田タクシー定額（2026/4/29改訂）通常/深夜/障がい者/深夜+障がい者
+const HANEDA_TAXI = {
+  "千代田区": [7600,9000,6800,8100],
+  "渋谷区":   [8500,10000,7600,9000],
+  "江戸川区": [9000,10500,8100,9400],
+  "新宿区":   [9000,10700,8100,9600],
+  "墨田区":   [9100,10700,8100,9600],
+  "台東区":   [9100,10800,8100,9700],
+  "文京区":   [9300,10900,8300,9800],
+  "中野区":   [9900,11700,8900,10500],
+  "荒川区":   [10400,12200,9300,10900],
+  "杉並区":   [10800,12600,9700,11300],
+  "北区":     [11000,13000,9900,11700],
+  "足立区":   [11100,13100,9900,11700],
+  "豊島区":   [11200,13200,10000,11800],
+  "葛飾区":   [11300,13400,10100,12000],
+  "板橋区":   [12300,14500,11000,13000],
+  "練馬区":   [12800,15100,11500,13500],
+  "三鷹市":   [13300,15700,11900,14100],
+  "武蔵野市": [14000,16500,12600,14800],
+};
+
+const NARITA_HIRE = {
   "送迎（通り/2H）": { luxury:{gen:40500,mem:40500}, exec:{gen:45900,mem:45900}, first:{gen:72000,mem:72000} },
   "送迎（迎え/3H）": { luxury:{gen:48500,mem:48500}, exec:{gen:53900,mem:53900}, first:{gen:null,mem:null} },
   "送迎（往復/5H）": { luxury:{gen:89000,mem:89000}, exec:{gen:99000,mem:99800}, first:{gen:null,mem:null} },
 };
-const NARITA_OT = HANEDA_OT;
+const NARITA_HIRE_OT = HANEDA_HIRE_OT;
+
+// 成田タクシー定額（2026/4/29改訂）通常/深夜/障がい者/深夜+障がい者
+const NARITA_TAXI = {
+  "A": [21000,25000,18900,22500],
+  "B": [26000,30000,23400,27000],
+  "C": [28000,33000,25200,29700],
+  "D": [30000,36000,27000,32400],
+};
+const TAXI_OT_RATE = 2700; // 30分ごと
+
 const HIRE_TABLE = [
   {h:1.0,km:15,   lxG:18000,lxM:16200,exG:21000,exM:18900,ftG:null,  ftM:null  },
   {h:1.5,km:22.5, lxG:22000,lxM:19800,exG:25500,exM:22950,ftG:null,  ftM:null  },
@@ -510,35 +698,40 @@ const EMIRATES_FARE = {
   }
 };
 const RULES = [
-  {cat:"羽田定額",icon:"✈",items:[
+  {cat:"羽田定額（ハイヤー）",icon:"✈",items:[
     {t:"適用ルート",b:"羽田空港↔東京23区内の直行送迎のみ定額適用。途中経由がある場合は時間・距離制の貸切料金。"},
     {t:"大田区特例",b:"目的地が「大田区羽田空港」の住所であれば、空港施設以外への送迎でも定額料金で対応。"},
     {t:"超過発生条件",b:"空港送り（UP）：予約時間から送迎完了までが1.5時間を超える場合。\n空港お迎え（DOWN）：飛行機の到着時刻（NT）から送迎完了までが2時間を超える場合。"},
-    {t:"深夜早朝割増",b:"22時〜翌5時の間に開始〜終了がすべて収まる場合、基本料金の25%割増。超過料金が深夜帯にかかる場合は超過分のみ1.25倍。"},
-    {t:"高速道路料金",b:"実費別途請求。車両の回送に伴う高速代・回送代は請求不可。"},
+    {t:"深夜早朝割増",b:"22時〜翌5時の間に開始〜終了がすべて収まる場合、基本料金の25%割増。"},
   ]},
-  {cat:"成田定額",icon:"🛬",items:[
-    {t:"適用ルート",b:"成田空港↔東京23区内の直行送迎のみ。経由地がある場合は貸切料金（回送代不可）。"},
-    {t:"成田市内ホテル",b:"目的地が「成田市内」のホテルであれば、空港施設以外への送迎でも成田定額料金で対応。"},
+  {cat:"羽田定額（タクシー）",icon:"🚕",items:[
+    {t:"適用ルート",b:"羽田空港↔東京23区内・武蔵野市・三鷹市の直行送迎。グレーゾーン地区の定額設定なし。"},
+    {t:"超過料金",b:"便の到着からお供完了まで3時間を超えた場合、¥2,700/30分ごと。"},
+    {t:"深夜早朝割増",b:"乗車から降車までの時間が深夜早朝時間帯（22時〜翌5時）の中にすべて含まれる場合に適用。"},
+    {t:"オプション",b:"予約配車+¥1,000 / HG指定+¥2,000（予約配車と併用不可）/ ESD+¥2,000/1H毎 / ミート+¥8,000"},
+  ]},
+  {cat:"成田定額（ハイヤー）",icon:"🛬",items:[
+    {t:"適用ルート",b:"成田空港↔東京23区内の直行送迎のみ。経由地がある場合は貸切料金。"},
     {t:"超過発生条件",b:"空港送り（UP）：予約開始時間から送迎完了までが2時間を超える場合。\n空港お迎え（DOWN）：飛行機の到着時刻（NT）から送迎完了までが3時間を超える場合。"},
-    {t:"ミートサービス",b:"成田空港へのお迎え（空港発）の際はミートサービス必須。担当者が到着ロビーにてネームボードを掲げてお迎え。駐車代込み¥8,000。"},
-    {t:"ロールスロイス",b:"ロールスロイスの場合、業務員によるロビーお迎えは不可。専門業者によるミートサービス対応。"},
+    {t:"ミートサービス",b:"成田空港へのお迎えの際はミートサービス必須。駐車代込み¥8,000。"},
+  ]},
+  {cat:"成田定額（タクシー）",icon:"🚕",items:[
+    {t:"適用ルート",b:"成田空港↔東京23区内の直行送迎。4ゾーン制。"},
+    {t:"超過料金",b:"便の到着からお供完了まで3時間を超えた場合、¥2,700/30分ごと。"},
+    {t:"深夜早朝割増",b:"乗車から降車までの時間が深夜早朝時間帯（22時〜翌5時）の中にすべて含まれる場合に適用。"},
+    {t:"オプション",b:"予約配車+¥1,000 / HG指定+¥2,000（予約配車と併用不可）/ ESD+¥5,000/1台毎 / ミート+¥8,000（■は必須）"},
   ]},
   {cat:"ハイヤー貸切",icon:"🚘",items:[
     {t:"時間制 vs 距離制",b:"「時間に応じた料金」と「走行距離に応じた料金」を比較し、高い方を適用。"},
-    {t:"予約時間の保証",b:"実際の走行時間が予約時間を下回っても、予約時間ベースで請求。予約開始〜予約終了の時間が基本料金の根拠。"},
+    {t:"予約時間の保証",b:"実際の走行時間が予約時間を下回っても、予約時間ベースで請求。"},
     {t:"超過料金",b:"実車終了が予約終了を超えた場合のみ、超えた分を30分単位（切り上げ）で超過料金加算。"},
-    {t:"8時間ルール",b:"2026年5月21日より廃止。"},
-    {t:"深夜早朝割増",b:"22時〜翌5時の間に利用がかかる場合、基本料金の25%割増。ただし距離制が適用される場合は割増なし。"},
     {t:"回送料金",b:"30分単位で発生。ラグジュアリー¥4,000 / エグゼクティブ¥4,500 / ファースト¥10,000。"},
-    {t:"ESD（英語対応）",b:"基本料金：1時間あたり¥2,000、最低¥4,000〜。待機開始（着陸時間）から最終降車時刻までの合計時間で算出。"},
-    {t:"キャンセル",b:"原則として回送費およびミートサービス代は請求不可。ただし配車区域外へのお迎えで出庫後キャンセルの場合は所定費用を請求。"},
+    {t:"ESD（英語対応）",b:"基本料金：1時間あたり¥2,000、最低¥4,000〜。"},
   ]},
   {cat:"経由・特殊ケース",icon:"📍",items:[
-    {t:"経由地あり（空港）",b:"空港→経由地：定額料金\n経由地→目的地：メーター料金\n両区間を合算して請求。"},
+    {t:"経由地あり（空港）",b:"空港→経由地：定額料金\n経由地→目的地：メーター料金"},
     {t:"都外エリア",b:"東京都外（成田エリアを除く）への送迎は定額なし。すべて時間・距離制の貸切料金。"},
-    {t:"宿泊を伴う長距離",b:"乗務員が連泊する場合、宿泊代として1泊¥20,000を別途請求（繁忙期・地域により変動あり）。"},
-    {t:"チャイルドシート",b:"お子様用チャイルドシート・ブースターシート：1台¥1,000。予約時に事前申告が必要。"},
+    {t:"宿泊を伴う長距離",b:"乗務員が連泊する場合、宿泊代として1泊¥20,000を別途請求。"},
   ]},
   {cat:"エミレーツ航空",icon:"🇦🇪",items:[
     {t:"羽田コード",b:"2507889-0001"},
@@ -551,10 +744,7 @@ const RULES = [
     {t:"コード",b:"2574349-0009"},
     {t:"料金",b:"1台口：¥24,000 / 2台口：¥12,000（1台あたり）"},
     {t:"支払方法",b:"未収・ノーサイン"},
-    {t:"主要ホテル",b:"ほとんどがANAインターコンチネンタルホテル。名称不明な場合もANA ICと判断。ストリングスホテル東京インターコンチネンタルも同じ契約料金。"},
-    {t:"使用路線",b:"飯倉（レインボーブリッジ・湾岸線B経由）または新空港IC（ANAインターコンチネンタルH送迎時）。"},
-    {t:"注意事項",b:"・クルー様の助手席への乗車禁止\n・3列目シートの片側跳ね上げ禁止\n・荷物が積み切れない場合は助手席に黒い布を被せて荷物置き場として使用\n・送迎最高速度100km/h"},
-    {t:"待機場所（成田第1）",b:"南ウイング側の14aで待機。2台の場合も14aで2台まで待機可能。"},
+    {t:"注意事項",b:"・クルー様の助手席への乗車禁止\n・3列目シートの片側跳ね上げ禁止\n・送迎最高速度100km/h"},
   ]},
 ];
 
@@ -562,41 +752,24 @@ const RULES = [
 // 状態
 // ============================================================
 let state = {
-  tab: 'haneda',
-  car: 'luxury',
-  member: false,
-  lateNight: false,
-  esd: false,
-  // 羽田
-  hArea: '',
-  hOT: 0,
-  // 成田
-  nType: '送迎（通り/2H）',
-  nOT: 0,
-  // 貸切
-  hireH: 2.0,
-  hireKm: '',
-  bookStart: '', bookEnd: '',
-  rideStart: '', rideEnd: '',
-  // 契約
-  contract: '',
-  emiratesAirport: 'haneda',
-  dir: 'down',
-  pax: '1',
-  contractKm: '',
-  uaCars: '1',
-  // 共通
-  persons: '',
-  meetFee: '',
-  highwayEtc: '',
-  highwayCash: '',
+  tab:'haneda', car:'luxury', member:false, lateNight:false, esd:false,
+  hType:'hire', nType_mode:'hire',
+  hArea:'', hOT:0,
+  hTaxiArea:'', hTaxiOT:0,
+  nType:'送迎（通り/2H）', nOT:0,
+  nTaxiArea:'', nTaxiOT:0,
+  opts:{ yoyaku:false, hg:false, 'esd-taxi':false, 'yoyaku-n':false, 'hg-n':false, 'esd-taxi-n':false },
+  esdTaxiHours:0,
+  hireH:2.0, hireKm:'',
+  bookStart:'', bookEnd:'', rideStart:'', rideEnd:'',
+  contract:'', emiratesAirport:'haneda', dir:'down', pax:'1', contractKm:'', uaCars:'1',
+  persons:'', meetFee:'', highwayEtc:'', highwayCash:'', kaisoHighway:'',
 };
 
 // ============================================================
 // 初期化
 // ============================================================
 function init() {
-  // 貸切時間ドロップダウン生成
   const sel = document.getElementById('hire-h');
   HIRE_TABLE.forEach(r => {
     const o = document.createElement('option');
@@ -605,26 +778,21 @@ function init() {
     if (r.h === 2.0) o.selected = true;
     sel.appendChild(o);
   });
-
-  // ルール生成
   buildRules(RULES);
-
-  // エミレーツ・UA注意事項
   const emNotes = RULES.find(r=>r.cat==='エミレーツ航空');
   if (emNotes) {
     const el = document.getElementById('emirates-notes');
-    emNotes.items.forEach(item => {
-      el.innerHTML += `<div class="note-item">· <b>${item.t}</b>: ${item.b.replace(/\n/g,'<br>')}</div>`;
+    emNotes.items.forEach(i => {
+      el.innerHTML += `<div class="note-item">· <b>${i.t}</b>: ${i.b.replace(/\n/g,'<br>')}</div>`;
     });
   }
   const uaNotes = RULES.find(r=>r.cat==='ユナイテッド航空');
   if (uaNotes) {
     const el = document.getElementById('united-notes');
-    uaNotes.items.forEach(item => {
-      el.innerHTML += `<div class="note-item">· <b>${item.t}</b>: ${item.b.replace(/\n/g,'<br>')}</div>`;
+    uaNotes.items.forEach(i => {
+      el.innerHTML += `<div class="note-item">· <b>${i.t}</b>: ${i.b.replace(/\n/g,'<br>')}</div>`;
     });
   }
-
   calc();
 }
 
@@ -634,7 +802,6 @@ function buildRules(rules) {
   rules.forEach(cat => {
     const block = document.createElement('div');
     block.className = 'cat-block';
-    block.dataset.cat = cat.cat;
     block.innerHTML = `
       <button class="cat-header" onclick="toggleCat(this)">
         <span class="cat-icon">${cat.icon}</span>
@@ -648,8 +815,7 @@ function buildRules(rules) {
             <div class="item-body">${item.b.replace(/\n/g,'<br>')}</div>
           </div>
         `).join('')}
-      </div>
-    `;
+      </div>`;
     container.appendChild(block);
   });
 }
@@ -688,27 +854,50 @@ function clearSearch() {
 }
 
 // ============================================================
-// タブ切替
+// タブ・切替
 // ============================================================
-function switchTab(tab) {
+function switchTab(tab, btn) {
   state.tab = tab;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-
-  const tabs = ['haneda','narita','hire','contract','rules'];
-  tabs.forEach(t => document.getElementById('tab-'+t).style.display = t===tab ? 'block' : 'none');
-
+  btn.classList.add('active');
+  ['haneda','narita','hire','contract','rules'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===tab ? 'block' : 'none';
+  });
   const showCar = !['contract','rules'].includes(tab);
   document.getElementById('car-section').style.display = showCar ? 'block' : 'none';
   document.getElementById('car-divider').style.display = showCar ? 'block' : 'none';
-  document.getElementById('common-section').style.display = tab === 'rules' ? 'none' : 'block';
-
+  document.getElementById('common-section').style.display = tab==='rules' ? 'none' : 'block';
+  document.getElementById('hire-highway-row').style.display = tab==='hire' ? 'block' : 'none';
   calc();
 }
 
-// ============================================================
-// セッター
-// ============================================================
+function setHType(type) {
+  state.hType = type;
+  document.getElementById('h-type-hire').classList.toggle('active', type==='hire');
+  document.getElementById('h-type-taxi').classList.toggle('active', type==='taxi');
+  document.getElementById('h-hire-section').style.display = type==='hire' ? 'block' : 'none';
+  document.getElementById('h-taxi-section').style.display = type==='taxi' ? 'block' : 'none';
+  document.getElementById('h-hire-opts').style.display = type==='hire' ? 'block' : 'none';
+  document.getElementById('h-taxi-opts').style.display = type==='taxi' ? 'block' : 'none';
+  // 車種セクション非表示（タクシーは車種関係なし）
+  document.getElementById('car-section').style.display = type==='hire' ? 'block' : 'none';
+  document.getElementById('car-divider').style.display = type==='hire' ? 'block' : 'none';
+  calc();
+}
+
+function setNType(type) {
+  state.nType_mode = type;
+  document.getElementById('n-type-hire').classList.toggle('active', type==='hire');
+  document.getElementById('n-type-taxi').classList.toggle('active', type==='taxi');
+  document.getElementById('n-hire-section').style.display = type==='hire' ? 'block' : 'none';
+  document.getElementById('n-taxi-section').style.display = type==='taxi' ? 'block' : 'none';
+  document.getElementById('n-hire-opts').style.display = type==='hire' ? 'block' : 'none';
+  document.getElementById('n-taxi-opts').style.display = type==='taxi' ? 'block' : 'none';
+  document.getElementById('car-section').style.display = type==='hire' ? 'block' : 'none';
+  document.getElementById('car-divider').style.display = type==='hire' ? 'block' : 'none';
+  calc();
+}
+
 function setCar(car) {
   state.car = car;
   document.querySelectorAll('.seg-btn[onclick^="setCar"]').forEach(b => {
@@ -728,7 +917,7 @@ function setMember(m) {
 
 function toggleLate() {
   state.lateNight = !state.lateNight;
-  ['track-late','track-late-n','track-late-h'].forEach(id => {
+  ['track-late-h','track-late-n','track-late-hire'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.toggle('on', state.lateNight);
   });
@@ -737,11 +926,30 @@ function toggleLate() {
 
 function toggleEsd() {
   state.esd = !state.esd;
-  ['track-esd','track-esd-n','track-esd-h'].forEach(id => {
+  ['track-esd-h','track-esd-n','track-esd-hire'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.toggle('on', state.esd);
   });
   calc();
+}
+
+function toggleOpt(key) {
+  // HGとyoyakuは相互排他
+  if (key==='hg' && !state.opts[key]) { state.opts['yoyaku']=false; setTrack('track-yoyaku',false); }
+  if (key==='yoyaku' && !state.opts[key]) { state.opts['hg']=false; setTrack('track-hg',false); }
+  if (key==='hg-n' && !state.opts[key]) { state.opts['yoyaku-n']=false; setTrack('track-yoyaku-n',false); }
+  if (key==='yoyaku-n' && !state.opts[key]) { state.opts['hg-n']=false; setTrack('track-hg-n',false); }
+  state.opts[key] = !state.opts[key];
+  setTrack('track-'+key, state.opts[key]);
+  if (key==='esd-taxi') {
+    document.getElementById('esd-taxi-hours-row').style.display = state.opts[key] ? 'block' : 'none';
+  }
+  calc();
+}
+
+function setTrack(id, on) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('on', on);
 }
 
 function setNaritaType(t) {
@@ -813,7 +1021,6 @@ function timeDiffH(s, e) {
   if (diff <= 0) diff += 24*60;
   return diff/60;
 }
-
 function roundUpHalf(h) { return Math.ceil(h*2)/2; }
 
 function calcHireTimes() {
@@ -821,29 +1028,14 @@ function calcHireTimes() {
   state.bookEnd   = document.getElementById('book-end').value;
   state.rideStart = document.getElementById('ride-start').value;
   state.rideEnd   = document.getElementById('ride-end').value;
-
   const bookH = timeDiffH(state.bookStart, state.bookEnd);
   const rideH = timeDiffH(state.rideStart, state.rideEnd);
-
-  // 予約時間表示
   const bookTag = document.getElementById('book-tag');
-  if (bookH != null) {
-    bookTag.style.display = 'block';
-    document.getElementById('book-tag-val').textContent = roundUpHalf(bookH).toFixed(1)+'h';
-  } else {
-    bookTag.style.display = 'none';
-  }
-
-  // 実乗車時間表示
+  if (bookH != null) { bookTag.style.display='block'; document.getElementById('book-tag-val').textContent=roundUpHalf(bookH).toFixed(1)+'h'; }
+  else bookTag.style.display='none';
   const rideTag = document.getElementById('ride-tag');
-  if (rideH != null) {
-    rideTag.style.display = 'block';
-    document.getElementById('ride-tag-val').textContent = rideH.toFixed(1)+'h';
-  } else {
-    rideTag.style.display = 'none';
-  }
-
-  // 超過計算（予約終了 vs 実車終了）
+  if (rideH != null) { rideTag.style.display='block'; document.getElementById('ride-tag-val').textContent=rideH.toFixed(1)+'h'; }
+  else rideTag.style.display='none';
   let overtimeH = 0;
   if (state.bookEnd && state.rideEnd) {
     const [bh,bm] = state.bookEnd.split(':').map(Number);
@@ -851,57 +1043,78 @@ function calcHireTimes() {
     let diff = (rh*60+rm) - (bh*60+bm);
     if (diff > 0) overtimeH = Math.ceil(diff/30)*0.5;
   }
-
   const otTag = document.getElementById('overtime-tag');
   if (overtimeH > 0) {
     const mk = state.member ? 'mem' : 'gen';
-    const otAmt = Math.floor(overtimeH/0.5) * HIRE_OT[state.car][mk];
-    otTag.style.display = 'block';
-    otTag.textContent = '⚠ 超過 '+overtimeH+'h → +'+fmt(otAmt);
-  } else {
-    otTag.style.display = 'none';
-  }
-
-  // フォールバック表示
-  document.getElementById('hire-fallback').style.display = bookH == null ? 'block' : 'none';
-
+    otTag.style.display='block';
+    otTag.textContent='⚠ 超過 '+overtimeH+'h → +'+fmt(Math.floor(overtimeH/0.5)*HIRE_OT[state.car][mk]);
+  } else otTag.style.display='none';
+  document.getElementById('hire-fallback').style.display = bookH==null ? 'block' : 'none';
   calc();
 }
 
 // ============================================================
 // 料金計算
 // ============================================================
-function fmt(n) {
-  if (n == null) return '－';
-  return '¥' + Math.round(n).toLocaleString('ja-JP');
-}
-
+function fmt(n) { return n==null ? '－' : '¥'+Math.round(n).toLocaleString('ja-JP'); }
 function calcESD(h) { return Math.max(4000, Math.ceil(h)*2000); }
-
 function applyLate(v) { return state.lateNight ? Math.round(v*1.25) : v; }
-
 function getMK() { return state.member ? 'mem' : 'gen'; }
 
 function calcHaneda() {
+  if (state.hType === 'taxi') return calcHanadaTaxi();
   const area = document.getElementById('h-area').value;
   if (!area) return null;
-  const d = HANEDA[area]?.[state.car];
+  const d = HANEDA_HIRE[area]?.[state.car];
   if (!d) return null;
   const base = applyLate(d[getMK()]);
-  const ot = applyLate(Math.floor(parseFloat(document.getElementById('h-ot').value||0)/0.5) * HANEDA_OT[state.car][getMK()]);
-  const esdAmt = state.esd ? calcESD(1.5) : 0;
-  return base + ot + esdAmt;
+  const ot = applyLate(Math.floor(parseFloat(document.getElementById('h-ot').value||0)/0.5) * HANEDA_HIRE_OT[state.car][getMK()]);
+  return base + ot + (state.esd ? calcESD(1.5) : 0);
+}
+
+function calcHanadaTaxi() {
+  const area = document.getElementById('h-taxi-area').value;
+  if (!area) return null;
+  const fares = HANEDA_TAXI[area];
+  if (!fares) return null;
+  // 0:通常 1:深夜 2:障がい者 3:深夜+障がい者
+  const base = fares[state.lateNight ? 1 : 0];
+  const otUnits = Math.floor(parseFloat(document.getElementById('h-taxi-ot').value||0)/0.5);
+  const ot = otUnits * TAXI_OT_RATE;
+  let opts = 0;
+  if (state.opts['yoyaku']) opts += 1000;
+  if (state.opts['hg']) opts += 2000;
+  if (state.opts['esd-taxi']) {
+    const h = parseFloat(document.getElementById('esd-taxi-hours').value||0)||0;
+    opts += h * 2000;
+  }
+  return base + ot + opts;
 }
 
 function calcNarita() {
-  const d = NARITA[state.nType]?.[state.car];
+  if (state.nType_mode === 'taxi') return calcNaritaTaxi();
+  const d = NARITA_HIRE[state.nType]?.[state.car];
   if (!d) return null;
   const base = d[getMK()];
   if (base == null) return null;
-  const ot = applyLate(Math.floor(parseFloat(document.getElementById('n-ot').value||0)/0.5) * NARITA_OT[state.car][getMK()]);
+  const ot = applyLate(Math.floor(parseFloat(document.getElementById('n-ot').value||0)/0.5) * NARITA_HIRE_OT[state.car][getMK()]);
   const baseH = state.nType.includes('5H') ? 5 : state.nType.includes('3H') ? 3 : 2;
-  const esdAmt = state.esd ? calcESD(baseH) : 0;
-  return applyLate(base) + ot + esdAmt;
+  return applyLate(base) + ot + (state.esd ? calcESD(baseH) : 0);
+}
+
+function calcNaritaTaxi() {
+  const zone = document.getElementById('n-taxi-area').value;
+  if (!zone) return null;
+  const fares = NARITA_TAXI[zone];
+  if (!fares) return null;
+  const base = fares[state.lateNight ? 1 : 0];
+  const otUnits = Math.floor(parseFloat(document.getElementById('n-taxi-ot').value||0)/0.5);
+  const ot = otUnits * TAXI_OT_RATE;
+  let opts = 0;
+  if (state.opts['yoyaku-n']) opts += 1000;
+  if (state.opts['hg-n']) opts += 2000;
+  if (state.opts['esd-taxi-n']) opts += 5000;
+  return base + ot + opts;
 }
 
 function calcHire() {
@@ -909,96 +1122,64 @@ function calcHire() {
   const keyG = state.car==='luxury'?'lxG':state.car==='exec'?'exG':'ftG';
   const keyM = state.car==='luxury'?'lxM':state.car==='exec'?'exM':'ftM';
   const priceKey = state.member ? keyM : keyG;
-
   const bookH = timeDiffH(state.bookStart, state.bookEnd);
-  const baseH = bookH != null ? roundUpHalf(bookH) : parseFloat(document.getElementById('hire-h').value||2);
-
+  const baseH = bookH!=null ? roundUpHalf(bookH) : parseFloat(document.getElementById('hire-h').value||2);
   const timeRow = HIRE_TABLE.find(r=>r.h===baseH) ?? [...HIRE_TABLE].reverse().find(r=>r.h<=baseH);
   const timePrice = timeRow?.[priceKey] ?? null;
-
   const km = parseFloat(document.getElementById('hire-km').value||'');
   let distPrice = null;
-  if (!isNaN(km) && km > 0) {
+  if (!isNaN(km) && km>0) {
     const dr = [...HIRE_TABLE].reverse().find(r=>r.km<=km);
     if (dr) distPrice = dr[priceKey];
   }
-
   const candidates = [timePrice, distPrice].filter(v=>v!=null);
-  if (candidates.length === 0) return null;
+  if (candidates.length===0) return null;
   let base = Math.max(...candidates);
-
-  // 超過
   let overtimeH = 0;
   if (state.bookEnd && state.rideEnd) {
     const [bh,bm] = state.bookEnd.split(':').map(Number);
     const [rh,rm] = state.rideEnd.split(':').map(Number);
-    let diff = (rh*60+rm) - (bh*60+bm);
-    if (diff > 0) overtimeH = Math.ceil(diff/30)*0.5;
+    let diff = (rh*60+rm)-(bh*60+bm);
+    if (diff>0) overtimeH = Math.ceil(diff/30)*0.5;
   }
-  const otAmt = overtimeH > 0 ? Math.floor(overtimeH/0.5)*HIRE_OT[state.car][mk] : 0;
-
-  base = applyLate(base + otAmt);
-  const esdAmt = state.esd ? calcESD(baseH) : 0;
-
-  // 適用根拠表示
+  const otAmt = overtimeH>0 ? Math.floor(overtimeH/0.5)*HIRE_OT[state.car][mk] : 0;
+  base = applyLate(base+otAmt);
   const infoBox = document.getElementById('hire-info');
-  if (timePrice != null || distPrice != null) {
-    infoBox.style.display = 'flex';
-    const adopted = (timePrice??0) >= (distPrice??0) ? '時間制' : '距離制';
-    document.getElementById('hire-info-label').textContent = '適用: '+adopted;
-    let sub = '';
-    if (timePrice != null) sub += ' 時間制'+fmt(timePrice);
-    if (distPrice != null) sub += ' 距離制'+fmt(distPrice);
-    document.getElementById('hire-info-sub').textContent = sub;
-  } else {
-    infoBox.style.display = 'none';
-  }
-
-  return base + esdAmt;
+  if (timePrice!=null || distPrice!=null) {
+    infoBox.style.display='flex';
+    const adopted = (timePrice??0)>=(distPrice??0) ? '時間制' : '距離制';
+    document.getElementById('hire-info-label').textContent='適用: '+adopted;
+    let sub='';
+    if (timePrice!=null) sub+=' 時間制'+fmt(timePrice);
+    if (distPrice!=null) sub+=' 距離制'+fmt(distPrice);
+    document.getElementById('hire-info-sub').textContent=sub;
+  } else infoBox.style.display='none';
+  return base + (state.esd ? calcESD(baseH) : 0);
 }
 
 function calcContract() {
   if (!state.contract) return null;
-
-  if (state.contract === 'united') {
-    return state.uaCars === '2' ? 12000 : 24000;
-  }
-
-  // エミレーツ
+  if (state.contract==='united') return state.uaCars==='2' ? 12000 : 24000;
   const ft = EMIRATES_FARE[state.emiratesAirport][state.dir];
   const km = parseFloat(document.getElementById('contract-km').value||'');
-  if (isNaN(km) || km <= 0) return null;
-
-  const isMulti = state.pax === '2+';
-  let base;
-  if (!isMulti) {
-    base = ft.base1;
-  } else {
-    base = km <= ft.limitKm1 ? ft.base2 : ft.ext2;
-  }
-
+  if (isNaN(km)||km<=0) return null;
+  const isMulti = state.pax==='2+';
+  let base = !isMulti ? ft.base1 : (km<=ft.limitKm1 ? ft.base2 : ft.ext2);
   let overKm = 0;
-  if (!isMulti && km > ft.limitKm1) overKm = km - ft.limitKm1;
-  else if (isMulti && km > ft.limitKm2) overKm = km - ft.limitKm2;
-
-  // 支払方法判定
+  if (!isMulti && km>ft.limitKm1) overKm=km-ft.limitKm1;
+  else if (isMulti && km>ft.limitKm2) overKm=km-ft.limitKm2;
   const limit = isMulti ? ft.limitKm2 : ft.limitKm1;
   const payNote = document.getElementById('payment-note');
   const payText = document.getElementById('payment-note-text');
-  payNote.style.display = 'flex';
-  if (km <= limit) {
-    payNote.style.background = '#e8f5ee';
-    payNote.style.borderColor = '#a0d4b8';
-    payText.style.color = '#1a7a3a';
-    payText.textContent = '支払方法: 未収';
+  payNote.style.display='flex';
+  if (km<=limit) {
+    payNote.style.background='#e8f5ee'; payNote.style.borderColor='#a0d4b8';
+    payText.style.color='#1a7a3a'; payText.textContent='支払方法: 未収';
   } else {
-    payNote.style.background = '#fde8e0';
-    payNote.style.borderColor = '#f0b0a0';
-    payText.style.color = '#c04020';
-    payText.textContent = '支払方法: 現収';
+    payNote.style.background='#fde8e0'; payNote.style.borderColor='#f0b0a0';
+    payText.style.color='#c04020'; payText.textContent='支払方法: 現収';
   }
-
-  return base + (overKm > 0 ? Math.ceil(overKm)*ft.overRate : 0);
+  return base + (overKm>0 ? Math.ceil(overKm)*ft.overRate : 0);
 }
 
 // ============================================================
@@ -1011,29 +1192,36 @@ function calc() {
   if (state.tab==='hire')     fareResult = calcHire();
   if (state.tab==='contract') fareResult = calcContract();
 
-  const etc  = parseFloat(document.getElementById('highway-etc').value||0)||0;
-  const cash = parseFloat(document.getElementById('highway-cash').value||0)||0;
-  const meet = parseFloat(state.meetFee)||0;
+  const etc   = parseFloat(document.getElementById('highway-etc').value||0)||0;
+  const cash  = parseFloat(document.getElementById('highway-cash').value||0)||0;
+  const kaiso = parseFloat(document.getElementById('hire-highway-kaiso').value||0)||0;
+  const meet  = parseFloat(state.meetFee)||0;
   const persons = document.getElementById('persons').value;
-  const total = fareResult != null ? fareResult + etc + cash + meet : null;
+  const highway = etc + cash;
+  const total = fareResult!=null ? fareResult + highway + kaiso + meet : null;
 
   const box = document.getElementById('result-box');
-  if (total == null) {
-    box.innerHTML = '<div class="placeholder">条件を選択してください</div>';
-    return;
-  }
+  if (total==null) { box.innerHTML='<div class="placeholder">条件を選択してください</div>'; return; }
 
-  let html = '';
+  let html='';
   html += bdRow('運送料金', fmt(fareResult));
-  if (etc+cash > 0) html += bdRow('高速代', fmt(etc+cash));
-  if (meet > 0) html += bdRow('ミート料', fmt(meet));
+  if (highway>0) html += bdRow('高速代', fmt(highway));
+  if (kaiso>0) html += bdRow('回送高速', fmt(kaiso));
+  if (meet>0) html += bdRow('ミート料', fmt(meet));
   if (persons) html += bdRow('人数', persons+'名');
-  if (state.lateNight && state.tab!=='contract') html += bdRow('深夜早朝', '25%増', true);
-
+  if (state.lateNight && state.tab!=='contract') html += bdRow('深夜早朝', '適用', true);
+  if (state.tab==='contract' && state.contract==='emirates') {
+    const km = parseFloat(document.getElementById('contract-km').value||'');
+    if (!isNaN(km) && km>0) {
+      const ft = EMIRATES_FARE[state.emiratesAirport][state.dir];
+      const isMulti = state.pax==='2+';
+      const limit = isMulti ? ft.limitKm2 : ft.limitKm1;
+      html += bdRow('支払方法', km<=limit ? '未収' : '現収', km>limit);
+    }
+  }
   html += '<div class="total-divider"></div>';
   html += '<div class="total-label">合計（税込）</div>';
   html += '<div class="total-amt">'+fmt(total)+'</div>';
-
   box.innerHTML = html;
 }
 
@@ -1041,33 +1229,7 @@ function bdRow(label, val, accent=false) {
   return `<div class="bd-row"><span class="bd-label">${label}</span><span class="bd-val${accent?' accent':''}">${val}</span></div>`;
 }
 
-// ============================================================
-// ログイン
-// ============================================================
-const AUTH = { id: 'tokyomk', pw: '5547' };
-
-function doLogin() {
-  const id = document.getElementById('login-id').value.trim();
-  const pw = document.getElementById('login-pw').value.trim();
-  if (id === AUTH.id && pw === AUTH.pw) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('main-app').style.display = 'block';
-    sessionStorage.setItem('mk_auth', '1');
-  } else {
-    document.getElementById('login-error').textContent = 'IDまたはパスワードが違います';
-    document.getElementById('login-pw').value = '';
-  }
-}
-
-// セッション中は再ログイン不要
-if (sessionStorage.getItem('mk_auth') === '1') {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('main-app').style.display = 'block';
-}
-
-// 起動
 init();
-
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
 }
