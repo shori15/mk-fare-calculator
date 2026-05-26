@@ -213,16 +213,43 @@
         <option value="練馬・北">練馬・北</option>
       </select>
       <div class="spacer"></div>
-      <div class="label">超過時間</div>
-      <select class="inp" id="h-ot" onchange="calc()">
-        <option value="0">なし</option>
-        <option value="0.5">0.5h</option>
-        <option value="1">1h</option>
-        <option value="1.5">1.5h</option>
-        <option value="2">2h</option>
-        <option value="2.5">2.5h</option>
-        <option value="3">3h</option>
-      </select>
+
+      <!-- UP/DOWN -->
+      <div class="label">方向</div>
+      <div class="seg-group" style="margin-bottom:10px">
+        <button class="seg-btn active" id="h-btn-up" onclick="setAirportDir('h','up')">△ 送り（UP）</button>
+        <button class="seg-btn" id="h-btn-down" onclick="setAirportDir('h','down')">▲ 迎え（DOWN）</button>
+      </div>
+
+      <!-- UP：予約開始〜送迎完了 -->
+      <div id="h-up-inputs">
+        <div class="hire-grid">
+          <div>
+            <div class="label">予約開始時刻</div>
+            <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="例: 930" id="h-book-start" oninput="onTimeInput(this, ()=>calcAirportTimes('h'))">
+          </div>
+          <div>
+            <div class="label">送迎完了時刻</div>
+            <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="例: 930" id="h-complete" oninput="onTimeInput(this, ()=>calcAirportTimes('h'))">
+          </div>
+        </div>
+        <div id="h-up-info" style="display:none;margin-top:6px"></div>
+      </div>
+
+      <!-- DOWN：NT〜送迎完了 -->
+      <div id="h-down-inputs" style="display:none">
+        <div class="hire-grid">
+          <div>
+            <div class="label">NT（着陸時刻）</div>
+            <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="例: 930" id="h-nt" oninput="onTimeInput(this, ()=>calcAirportTimes('h'))">
+          </div>
+          <div>
+            <div class="label">送迎完了時刻</div>
+            <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="例: 930" id="h-complete-down" oninput="onTimeInput(this, ()=>calcAirportTimes('h'))">
+          </div>
+        </div>
+        <div id="h-down-info" style="display:none;margin-top:6px"></div>
+      </div>
     </div>
 
     <!-- タクシー -->
@@ -315,16 +342,43 @@
         <button class="seg-btn" onclick="setNaritaType('送迎（往復/5H）')">往復/5H</button>
       </div>
       <div class="spacer"></div>
-      <div class="label">超過時間</div>
-      <select class="inp" id="n-ot" onchange="calc()">
-        <option value="0">なし</option>
-        <option value="0.5">0.5h</option>
-        <option value="1">1h</option>
-        <option value="1.5">1.5h</option>
-        <option value="2">2h</option>
-        <option value="2.5">2.5h</option>
-        <option value="3">3h</option>
-      </select>
+
+      <!-- UP/DOWN -->
+      <div class="label">方向</div>
+      <div class="seg-group" style="margin-bottom:10px">
+        <button class="seg-btn active" id="n-btn-up" onclick="setAirportDir('n','up')">△ 送り（UP）</button>
+        <button class="seg-btn" id="n-btn-down" onclick="setAirportDir('n','down')">▲ 迎え（DOWN）</button>
+      </div>
+
+      <!-- UP：予約開始〜送迎完了 -->
+      <div id="n-up-inputs">
+        <div class="hire-grid">
+          <div>
+            <div class="label">予約開始時刻</div>
+            <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="例: 930" id="n-book-start" oninput="onTimeInput(this, ()=>calcAirportTimes('n'))">
+          </div>
+          <div>
+            <div class="label">送迎完了時刻</div>
+            <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="例: 930" id="n-complete" oninput="onTimeInput(this, ()=>calcAirportTimes('n'))">
+          </div>
+        </div>
+        <div id="n-up-info" style="display:none;margin-top:6px"></div>
+      </div>
+
+      <!-- DOWN：NT〜送迎完了 -->
+      <div id="n-down-inputs" style="display:none">
+        <div class="hire-grid">
+          <div>
+            <div class="label">NT（着陸時刻）</div>
+            <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="例: 930" id="n-nt" oninput="onTimeInput(this, ()=>calcAirportTimes('n'))">
+          </div>
+          <div>
+            <div class="label">送迎完了時刻</div>
+            <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="例: 930" id="n-complete-down" oninput="onTimeInput(this, ()=>calcAirportTimes('n'))">
+          </div>
+        </div>
+        <div id="n-down-info" style="display:none;margin-top:6px"></div>
+      </div>
     </div>
 
     <!-- タクシー -->
@@ -380,16 +434,28 @@
 
   <!-- ===== ハイヤー貸切 ===== -->
   <div id="tab-hire" class="section" style="display:none">
-    <div class="hire-grid">
-      <div>
-        <div class="label">予約時刻</div>
-        <div class="time-row">
-          <input type="time" class="time-in" id="book-start" oninput="calcHireTimes()">
-          <span class="arrow">→</span>
-          <input type="time" class="time-in" id="book-end" oninput="calcHireTimes()">
-        </div>
-        <div id="book-tag" style="margin-top:4px;display:none"><span class="time-tag" id="book-tag-val"></span></div>
-      </div>
+
+    <!-- 予約時刻 -->
+    <div class="label">予約時刻</div>
+    <div class="time-row" style="margin-bottom:4px">
+      <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="開始 例: 900" id="book-start" oninput="onTimeInput(this, calcHireTimes)">
+      <span class="arrow">→</span>
+      <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="終了 例: 1730" id="book-end" oninput="onTimeInput(this, calcHireTimes)">
+      <div id="book-tag" style="display:none"><span class="time-tag" id="book-tag-val"></span></div>
+    </div>
+
+    <!-- 実乗車時刻 -->
+    <div class="label" style="margin-top:10px">実乗車時刻</div>
+    <div class="time-row" style="margin-bottom:4px">
+      <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="開始 例: 900" id="ride-start" oninput="onTimeInput(this, calcHireTimes)">
+      <span class="arrow">→</span>
+      <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="終了 例: 1745" id="ride-end" oninput="onTimeInput(this, calcHireTimes)">
+      <div id="ride-tag" style="display:none"><span class="time-tag" id="ride-tag-val"></span></div>
+    </div>
+    <div id="overtime-tag" class="overtime-tag" style="display:none"></div>
+
+    <!-- 実走距離 + 予約時間フォールバック を横並び -->
+    <div class="hire-grid" style="margin-top:10px">
       <div>
         <div class="label">実走距離（ドリップ）</div>
         <div class="inline-row">
@@ -397,22 +463,13 @@
           <span class="unit">km</span>
         </div>
       </div>
-      <div>
-        <div class="label">実乗車時刻</div>
-        <div class="time-row">
-          <input type="time" class="time-in" id="ride-start" oninput="calcHireTimes()">
-          <span class="arrow">→</span>
-          <input type="time" class="time-in" id="ride-end" oninput="calcHireTimes()">
-        </div>
-        <div id="ride-tag" style="margin-top:4px;display:none"><span class="time-tag" id="ride-tag-val"></span></div>
-        <div id="overtime-tag" class="overtime-tag" style="display:none"></div>
-      </div>
       <div id="hire-fallback">
         <div class="label">予約時間（時刻未入力時）</div>
         <select class="inp" id="hire-h" onchange="calc()"></select>
       </div>
     </div>
-    <div id="hire-info" class="info-box" style="display:none">
+
+    <div id="hire-info" class="info-box" style="display:none;margin-top:8px">
       <span class="info-label" id="hire-info-label"></span>
       <span class="info-sub" id="hire-info-sub"></span>
     </div>
@@ -439,6 +496,10 @@
       <button class="code-btn" onclick="setContract('united')">
         <span class="code-name">ユナイテッド航空（UAクルー）</span>
         <span class="code-sub">成田 · 2574349-0009</span>
+      </button>
+      <button class="code-btn" onclick="setContract('amex')">
+        <span class="code-name">アメリカン・エキスプレス（AMEX）</span>
+        <span class="code-sub">2500043-0001 · 全額未収・ノーサイン</span>
       </button>
     </div>
     <div id="emirates-detail" style="display:none">
@@ -492,6 +553,71 @@
       <div class="spacer"></div>
       <div class="label">注意事項</div>
       <div id="united-notes"></div>
+    </div>
+
+    <!-- アメックス詳細 -->
+    <div id="amex-detail" style="display:none">
+      <div class="contract-card" style="margin-top:10px">
+        <div class="contract-name">AMEX <span class="contract-airport">羽田 / 成田</span></div>
+        <div class="badge green">全額未収・ノーサイン</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="label">空港</div>
+      <div class="seg-group">
+        <button class="seg-btn active" id="amex-btn-haneda" onclick="setAmexAirport('haneda')">羽田空港</button>
+        <button class="seg-btn" id="amex-btn-narita" onclick="setAmexAirport('narita')">成田空港</button>
+      </div>
+      <div class="spacer"></div>
+      <div class="label">方向</div>
+      <div class="seg-group">
+        <button class="seg-btn active" id="amex-btn-up" onclick="setAmexDir('up')">△ 送り（UP）</button>
+        <button class="seg-btn" id="amex-btn-down" onclick="setAmexDir('down')">▲ 迎え（DOWN）</button>
+      </div>
+      <div class="spacer"></div>
+
+      <!-- UP：予約開始〜送迎完了 -->
+      <div id="amex-up-inputs">
+        <div class="hire-grid">
+          <div>
+            <div class="label">予約開始時刻</div>
+            <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="例: 930" id="amex-book-start" oninput="onTimeInput(this, calcAmexTimes)">
+          </div>
+          <div>
+            <div class="label">送迎完了時刻</div>
+            <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="例: 1045" id="amex-complete" oninput="onTimeInput(this, calcAmexTimes)">
+          </div>
+        </div>
+        <div id="amex-up-info" style="display:none;margin-top:6px"></div>
+      </div>
+
+      <!-- DOWN：NT〜送迎完了 -->
+      <div id="amex-down-inputs" style="display:none">
+        <div class="hire-grid">
+          <div>
+            <div class="label">NT（着陸時刻）</div>
+            <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="例: 1400" id="amex-nt" oninput="onTimeInput(this, calcAmexTimes)">
+          </div>
+          <div>
+            <div class="label">送迎完了時刻</div>
+            <input type="text" class="time-in" inputmode="numeric" maxlength="4" placeholder="例: 1620" id="amex-complete-down" oninput="onTimeInput(this, calcAmexTimes)">
+          </div>
+        </div>
+        <div id="amex-down-info" style="display:none;margin-top:6px"></div>
+      </div>
+
+      <div class="spacer"></div>
+      <div class="label">オプション</div>
+      <div class="toggle-row" onclick="toggleAmexOpt('wagon')">
+        <div class="toggle-track" id="track-amex-wagon"><div class="toggle-thumb"></div></div>
+        <span class="toggle-label">ワゴン指定（+¥2,000）</span>
+      </div>
+      <div class="toggle-row" onclick="toggleAmexOpt('meet')">
+        <div class="toggle-track" id="track-amex-meet"><div class="toggle-thumb"></div></div>
+        <span class="toggle-label">ミートサービス（+¥8,000）</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="label">注意事項</div>
+      <div id="amex-notes"></div>
     </div>
   </div>
 
@@ -554,6 +680,19 @@
         <div class="inline-row">
           <input type="number" class="inp" id="hire-highway-kaiso" placeholder="0" oninput="calc()" style="width:130px">
           <span class="unit">円</span>
+        </div>
+      </div>
+      <!-- 車種指定・時間指定（契約以外） -->
+      <div id="designation-opts" style="display:none">
+        <div class="spacer"></div>
+        <div class="label">指定料金</div>
+        <div class="toggle-row" onclick="toggleOpt('shaShitei')">
+          <div class="toggle-track" id="track-shaShitei"><div class="toggle-thumb"></div></div>
+          <span class="toggle-label">車種指定（+¥2,000）</span>
+        </div>
+        <div class="toggle-row" onclick="toggleOpt('jikanShitei')">
+          <div class="toggle-track" id="track-jikanShitei"><div class="toggle-thumb"></div></div>
+          <span class="toggle-label">時間指定（+¥1,000）</span>
         </div>
       </div>
     </div>
@@ -685,6 +824,27 @@ const HIRE_TABLE = [
 const HIRE_OT = {
   luxury:{gen:4000,mem:3600}, exec:{gen:4500,mem:4050}, first:{gen:10000,mem:9000}
 };
+// アメックス超過計算
+// UP: 予約開始から30分ごとに¥2,700
+// DOWN 羽田: NTより2h後、最初の30分¥2,700、1h¥5,900、以後30分ごとに+¥2,700
+// DOWN 成田: NTより3h後、同じ計算
+function calcAmexOvertime(dir, airport, totalH) {
+  if (totalH == null) return 0;
+  if (dir === 'up') {
+    // 30分ごとに¥2,700
+    const units = Math.floor(totalH / 0.5);
+    return units * 2700;
+  } else {
+    const limitH = airport === 'haneda' ? 2.0 : 3.0;
+    if (totalH <= limitH) return 0;
+    const overH = totalH - limitH;
+    // 最初の30分：¥2,700、最初の1h：¥5,900、以後30分ごとに¥2,700加算
+    if (overH <= 0.5) return 2700;
+    if (overH <= 1.0) return 5900;
+    const extraUnits = Math.floor((overH - 1.0) / 0.5);
+    return 5900 + extraUnits * 2700;
+  }
+}
 const EMIRATES_FARE = {
   haneda: {
     up:   {base1:18000,base2:18000,ext2:27000,limitKm1:80,limitKm2:120},
@@ -740,6 +900,18 @@ const RULES = [
     {t:"成田 未収/現収判定",b:"1名：100kmまで未収、超えたら現収。\n2名以上：100〜150kmは未収、150km超えは現収。"},
     {t:"超過料金",b:"上限距離を超えた分は1kmごとに¥500（端数切り上げ）。"},
   ]},
+  {cat:"アメリカン・エキスプレス（AMEX）",icon:"💳",items:[
+    {t:"コード",b:"2500043-0001"},
+    {t:"料金・支払方法",b:"タクシー空港定額 or エリア外はメーター。全額未収・ノーサイン。時間指定料金は頂けません。"},
+    {t:"超過料金（UP送り）",b:"予約開始時間から30分ごとに¥2,700。"},
+    {t:"超過料金（DOWN迎え・羽田）",b:"NTより2時間経過後：最初の30分¥2,700、1時間¥5,900、以後30分ごとに¥2,700加算。"},
+    {t:"超過料金（DOWN迎え・成田）",b:"NTより3時間経過後：最初の30分¥2,700、1時間¥5,900、以後30分ごとに¥2,700加算。"},
+    {t:"ワゴン指定",b:"¥2,000（5/1より）。希望がある場合のみ。"},
+    {t:"ミートサービス",b:"原則なし（基本有線対応）。ご希望の場合は¥8,000。2024年3月1日以降は原則ミートサービスなし。"},
+    {t:"駐車場代",b:"請求不可。"},
+    {t:"ETC料金",b:"全額請求。"},
+    {t:"注意事項",b:"・行き先変更や経由希望の場合は無線室に確認\n・アメックス専用携帯: 080-4125-2432\n・ショートメールでのお客様への連絡は禁止\n・未収伝票にはお客様名をフルネームで記載\n・メーターカバー使用"},
+  ]},
   {cat:"ユナイテッド航空",icon:"✈",items:[
     {t:"コード",b:"2574349-0009"},
     {t:"料金",b:"1台口：¥24,000 / 2台口：¥12,000（1台あたり）"},
@@ -754,15 +926,17 @@ const RULES = [
 let state = {
   tab:'haneda', car:'luxury', member:false, lateNight:false, esd:false,
   hType:'hire', nType_mode:'hire',
-  hArea:'', hOT:0,
+  hArea:'', hDir:'up', hBookStart:'', hComplete:'', hNT:'', hCompleteDown:'',
+  nType:'送迎（通り/2H）', nDir:'up', nBookStart:'', nComplete:'', nNT:'', nCompleteDown:'',
   hTaxiArea:'', hTaxiOT:0,
-  nType:'送迎（通り/2H）', nOT:0,
   nTaxiArea:'', nTaxiOT:0,
-  opts:{ yoyaku:false, hg:false, 'esd-taxi':false, 'yoyaku-n':false, 'hg-n':false, 'esd-taxi-n':false },
+  opts:{ yoyaku:false, hg:false, 'esd-taxi':false, 'yoyaku-n':false, 'hg-n':false, 'esd-taxi-n':false, shaShitei:false, jikanShitei:false },
   esdTaxiHours:0,
   hireH:2.0, hireKm:'',
   bookStart:'', bookEnd:'', rideStart:'', rideEnd:'',
   contract:'', emiratesAirport:'haneda', dir:'down', pax:'1', contractKm:'', uaCars:'1',
+  amexAirport:'haneda', amexDir:'up', amexBookStart:'', amexComplete:'', amexNT:'', amexCompleteDown:'',
+  amexOpts:{ wagon:false, meet:false },
   persons:'', meetFee:'', highwayEtc:'', highwayCash:'', kaisoHighway:'',
 };
 
@@ -786,7 +960,13 @@ function init() {
       el.innerHTML += `<div class="note-item">· <b>${i.t}</b>: ${i.b.replace(/\n/g,'<br>')}</div>`;
     });
   }
-  const uaNotes = RULES.find(r=>r.cat==='ユナイテッド航空');
+  const amexRules = RULES.find(r=>r.cat.includes('アメリカン'));
+  if (amexRules) {
+    const el = document.getElementById('amex-notes');
+    amexRules.items.forEach(i => {
+      el.innerHTML += `<div class="note-item">· <b>${i.t}</b>: ${i.b.replace(/\n/g,'<br>')}</div>`;
+    });
+  }
   if (uaNotes) {
     const el = document.getElementById('united-notes');
     uaNotes.items.forEach(i => {
@@ -868,6 +1048,7 @@ function switchTab(tab, btn) {
   document.getElementById('car-divider').style.display = showCar ? 'block' : 'none';
   document.getElementById('common-section').style.display = tab==='rules' ? 'none' : 'block';
   document.getElementById('hire-highway-row').style.display = tab==='hire' ? 'block' : 'none';
+  document.getElementById('designation-opts').style.display = ['haneda','narita','hire'].includes(tab) ? 'block' : 'none';
   calc();
 }
 
@@ -930,6 +1111,9 @@ function toggleEsd() {
     const el = document.getElementById(id);
     if (el) el.classList.toggle('on', state.esd);
   });
+  // 空港時刻表示を更新
+  if (state.tab==='haneda') calcAirportTimes('h');
+  if (state.tab==='narita') calcAirportTimes('n');
   calc();
 }
 
@@ -952,6 +1136,72 @@ function setTrack(id, on) {
   if (el) el.classList.toggle('on', on);
 }
 
+function setAirportDir(prefix, dir) {
+  if (prefix === 'h') {
+    state.hDir = dir;
+    document.getElementById('h-btn-up').classList.toggle('active', dir==='up');
+    document.getElementById('h-btn-down').classList.toggle('active', dir==='down');
+    document.getElementById('h-up-inputs').style.display = dir==='up' ? 'block' : 'none';
+    document.getElementById('h-down-inputs').style.display = dir==='down' ? 'block' : 'none';
+  } else {
+    state.nDir = dir;
+    document.getElementById('n-btn-up').classList.toggle('active', dir==='up');
+    document.getElementById('n-btn-down').classList.toggle('active', dir==='down');
+    document.getElementById('n-up-inputs').style.display = dir==='up' ? 'block' : 'none';
+    document.getElementById('n-down-inputs').style.display = dir==='down' ? 'block' : 'none';
+  }
+  calc();
+}
+
+function calcAirportTimes(prefix) {
+  // 羽田(h) or 成田(n)
+  const isH = prefix === 'h';
+  const dir = isH ? state.hDir : state.nDir;
+
+  let startTime, endTime;
+  if (dir === 'up') {
+    startTime = getTimeVal(prefix+'-book-start');
+    endTime   = getTimeVal(prefix+'-complete');
+    if (isH) { state.hBookStart=startTime; state.hComplete=endTime; }
+    else      { state.nBookStart=startTime; state.nComplete=endTime; }
+  } else {
+    startTime = getTimeVal(prefix+'-nt');
+    endTime   = getTimeVal(prefix+'-complete-down');
+    if (isH) { state.hNT=startTime; state.hCompleteDown=endTime; }
+    else      { state.nNT=startTime; state.nCompleteDown=endTime; }
+  }
+
+  const totalH = timeDiffH(startTime, endTime);
+  // 超過判定の基準時間
+  // 羽田UP:1.5h, 羽田DOWN:2h, 成田UP:2h, 成田DOWN:3h
+  const limitH = isH ? (dir==='up' ? 1.5 : 2.0) : (dir==='up' ? 2.0 : 3.0);
+  const otH = totalH != null && totalH > limitH ? Math.ceil((totalH - limitH) / 0.5) * 0.5 : 0;
+
+  const infoId = prefix + (dir==='up' ? '-up-info' : '-down-info');
+  const infoEl = document.getElementById(infoId);
+
+  if (totalH != null) {
+    infoEl.style.display = 'block';
+    let html = `<div class="info-box">`;
+    html += `<span class="info-label">利用時間: ${totalH.toFixed(1)}h</span>`;
+    if (otH > 0) {
+      const otAmt = Math.floor(otH/0.5) * HANEDA_HIRE_OT[state.car][state.member?'mem':'gen'];
+      html += `<span class="info-sub" style="color:#c04020;font-weight:700">⚠ 超過 ${otH}h → +${fmt(otAmt)}</span>`;
+    } else {
+      html += `<span class="info-sub">超過なし（基準: ${limitH}h以内）</span>`;
+    }
+    if (state.esd) {
+      const esdAmt = calcESD(totalH);
+      html += `<span class="info-sub">ESD: ${fmt(esdAmt)}（${totalH.toFixed(1)}h）</span>`;
+    }
+    html += `</div>`;
+    infoEl.innerHTML = html;
+  } else {
+    infoEl.style.display = 'none';
+  }
+  calc();
+}
+
 function setNaritaType(t) {
   state.nType = t;
   document.querySelectorAll('#narita-type-btns .seg-btn').forEach(b => {
@@ -966,8 +1216,80 @@ function setContract(c) {
     b.classList.toggle('active', b.getAttribute('onclick').includes("'"+c+"'"));
   });
   document.getElementById('emirates-detail').style.display = c==='emirates' ? 'block' : 'none';
-  document.getElementById('united-detail').style.display = c==='united' ? 'block' : 'none';
+  document.getElementById('united-detail').style.display   = c==='united'   ? 'block' : 'none';
+  document.getElementById('amex-detail').style.display     = c==='amex'     ? 'block' : 'none';
   calc();
+}
+
+function setAmexAirport(ap) {
+  state.amexAirport = ap;
+  document.getElementById('amex-btn-haneda').classList.toggle('active', ap==='haneda');
+  document.getElementById('amex-btn-narita').classList.toggle('active', ap==='narita');
+  calcAmexTimes();
+  calc();
+}
+
+function setAmexDir(d) {
+  state.amexDir = d;
+  document.getElementById('amex-btn-up').classList.toggle('active', d==='up');
+  document.getElementById('amex-btn-down').classList.toggle('active', d==='down');
+  document.getElementById('amex-up-inputs').style.display   = d==='up'   ? 'block' : 'none';
+  document.getElementById('amex-down-inputs').style.display = d==='down' ? 'block' : 'none';
+  calc();
+}
+
+function toggleAmexOpt(key) {
+  state.amexOpts[key] = !state.amexOpts[key];
+  document.getElementById('track-amex-'+key).classList.toggle('on', state.amexOpts[key]);
+  calc();
+}
+
+function calcAmexTimes() {
+  const dir = state.amexDir;
+  let startTime, endTime;
+  if (dir === 'up') {
+    startTime = getTimeVal('amex-book-start');
+    endTime   = getTimeVal('amex-complete');
+    state.amexBookStart = startTime; state.amexComplete = endTime;
+  } else {
+    startTime = getTimeVal('amex-nt');
+    endTime   = getTimeVal('amex-complete-down');
+    state.amexNT = startTime; state.amexCompleteDown = endTime;
+  }
+  const totalH = timeDiffH(startTime, endTime);
+  const infoId = dir==='up' ? 'amex-up-info' : 'amex-down-info';
+  const infoEl = document.getElementById(infoId);
+  if (totalH != null) {
+    const ot = calcAmexOvertime(dir, state.amexAirport, totalH);
+    infoEl.style.display = 'block';
+    let html = `<div class="info-box">`;
+    html += `<span class="info-label">利用時間: ${totalH.toFixed(1)}h</span>`;
+    if (ot > 0) {
+      html += `<span class="info-sub" style="color:#c04020;font-weight:700">⚠ 超過料金: ${fmt(ot)}</span>`;
+    } else {
+      const limitH = dir==='up' ? 0 : (state.amexAirport==='haneda' ? 2 : 3);
+      html += `<span class="info-sub">超過なし${dir==='down' ? `（基準: ${limitH}h以内）` : ''}</span>`;
+    }
+    html += `</div>`;
+    infoEl.innerHTML = html;
+  } else {
+    infoEl.style.display = 'none';
+  }
+  calc();
+}
+
+function calcAmex() {
+  const dir = state.amexDir;
+  const startTime = dir==='up' ? state.amexBookStart : state.amexNT;
+  const endTime   = dir==='up' ? state.amexComplete  : state.amexCompleteDown;
+  const totalH = timeDiffH(startTime, endTime);
+  // タクシー定額（エリアは羽田/成田共通でゾーン不問 → 超過のみ計算）
+  // 基本料金は0として超過のみ返す（伝票は未収なのでベース料金は表示用）
+  const ot = calcAmexOvertime(dir, state.amexAirport, totalH);
+  let opts = 0;
+  if (state.amexOpts.wagon) opts += 2000;
+  if (state.amexOpts.meet)  opts += 8000;
+  return ot + opts;
 }
 
 function setEmiratesAirport(ap) {
@@ -1013,10 +1335,56 @@ function setMeet(v) {
 // ============================================================
 // 時刻計算
 // ============================================================
+// 数字入力を HH:MM 形式に変換（例: 930 → "09:30", 1430 → "14:30"）
+function parseTimeInput(val) {
+  if (!val) return '';
+  const v = val.replace(/[^0-9]/g, '');
+  if (v.length === 0) return '';
+  let h, m;
+  if (v.length <= 2) {
+    h = parseInt(v); m = 0;
+  } else if (v.length === 3) {
+    h = parseInt(v[0]); m = parseInt(v.slice(1));
+  } else {
+    h = parseInt(v.slice(0,2)); m = parseInt(v.slice(2,4));
+  }
+  if (h > 23 || m > 59) return '';
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+}
+
+function onTimeInput(el, callback) {
+  const raw = el.value;
+  const parsed = parseTimeInput(raw);
+  // 4桁入力完了したら変換表示
+  const digits = raw.replace(/[^0-9]/g,'');
+  if (digits.length >= 3 && parsed) {
+    el.dataset.parsed = parsed;
+    el.style.color = '#111';
+  } else if (digits.length > 0) {
+    el.dataset.parsed = '';
+    el.style.color = '#888';
+  } else {
+    el.dataset.parsed = '';
+    el.style.color = '#111';
+  }
+  if (callback) callback();
+}
+
+function getTimeVal(id) {
+  const el = document.getElementById(id);
+  if (!el) return '';
+  // dataset.parsed があればそれを、なければparseTimeInputを試みる
+  if (el.dataset.parsed) return el.dataset.parsed;
+  return parseTimeInput(el.value);
+}
+
 function timeDiffH(s, e) {
   if (!s || !e) return null;
-  const [sh,sm] = s.split(':').map(Number);
-  const [eh,em] = e.split(':').map(Number);
+  const sParsed = s.includes(':') ? s : parseTimeInput(s);
+  const eParsed = e.includes(':') ? e : parseTimeInput(e);
+  if (!sParsed || !eParsed) return null;
+  const [sh,sm] = sParsed.split(':').map(Number);
+  const [eh,em] = eParsed.split(':').map(Number);
   let diff = (eh*60+em) - (sh*60+sm);
   if (diff <= 0) diff += 24*60;
   return diff/60;
@@ -1024,10 +1392,10 @@ function timeDiffH(s, e) {
 function roundUpHalf(h) { return Math.ceil(h*2)/2; }
 
 function calcHireTimes() {
-  state.bookStart = document.getElementById('book-start').value;
-  state.bookEnd   = document.getElementById('book-end').value;
-  state.rideStart = document.getElementById('ride-start').value;
-  state.rideEnd   = document.getElementById('ride-end').value;
+  state.bookStart = getTimeVal('book-start');
+  state.bookEnd   = getTimeVal('book-end');
+  state.rideStart = getTimeVal('ride-start');
+  state.rideEnd   = getTimeVal('ride-end');
   const bookH = timeDiffH(state.bookStart, state.bookEnd);
   const rideH = timeDiffH(state.rideStart, state.rideEnd);
   const bookTag = document.getElementById('book-tag');
@@ -1067,9 +1435,19 @@ function calcHaneda() {
   if (!area) return null;
   const d = HANEDA_HIRE[area]?.[state.car];
   if (!d) return null;
-  const base = applyLate(d[getMK()]);
-  const ot = applyLate(Math.floor(parseFloat(document.getElementById('h-ot').value||0)/0.5) * HANEDA_HIRE_OT[state.car][getMK()]);
-  return base + ot + (state.esd ? calcESD(1.5) : 0);
+  let base = applyLate(d[getMK()]);
+
+  // 超過・ESD自動計算
+  const dir = state.hDir;
+  const startTime = dir==='up' ? state.hBookStart : state.hNT;
+  const endTime   = dir==='up' ? state.hComplete  : state.hCompleteDown;
+  const totalH    = timeDiffH(startTime, endTime);
+  const limitH    = dir==='up' ? 1.5 : 2.0;
+  const otH       = totalH!=null && totalH>limitH ? Math.ceil((totalH-limitH)/0.5)*0.5 : 0;
+  const ot        = otH>0 ? applyLate(Math.floor(otH/0.5)*HANEDA_HIRE_OT[state.car][getMK()]) : 0;
+  const esdAmt    = state.esd && totalH!=null ? calcESD(totalH) : (state.esd ? calcESD(1.5) : 0);
+
+  return base + ot + esdAmt;
 }
 
 function calcHanadaTaxi() {
@@ -1097,9 +1475,19 @@ function calcNarita() {
   if (!d) return null;
   const base = d[getMK()];
   if (base == null) return null;
-  const ot = applyLate(Math.floor(parseFloat(document.getElementById('n-ot').value||0)/0.5) * NARITA_HIRE_OT[state.car][getMK()]);
-  const baseH = state.nType.includes('5H') ? 5 : state.nType.includes('3H') ? 3 : 2;
-  return applyLate(base) + ot + (state.esd ? calcESD(baseH) : 0);
+
+  // 超過・ESD自動計算
+  const dir = state.nDir;
+  const startTime = dir==='up' ? state.nBookStart : state.nNT;
+  const endTime   = dir==='up' ? state.nComplete  : state.nCompleteDown;
+  const totalH    = timeDiffH(startTime, endTime);
+  const limitH    = dir==='up' ? 2.0 : 3.0;
+  const otH       = totalH!=null && totalH>limitH ? Math.ceil((totalH-limitH)/0.5)*0.5 : 0;
+  const ot        = otH>0 ? applyLate(Math.floor(otH/0.5)*NARITA_HIRE_OT[state.car][getMK()]) : 0;
+  const baseH     = state.nType.includes('5H') ? 5 : state.nType.includes('3H') ? 3 : 2;
+  const esdAmt    = state.esd && totalH!=null ? calcESD(totalH) : (state.esd ? calcESD(baseH) : 0);
+
+  return applyLate(base) + ot + esdAmt;
 }
 
 function calcNaritaTaxi() {
@@ -1160,6 +1548,7 @@ function calcHire() {
 function calcContract() {
   if (!state.contract) return null;
   if (state.contract==='united') return state.uaCars==='2' ? 12000 : 24000;
+  if (state.contract==='amex') return calcAmex();
   const ft = EMIRATES_FARE[state.emiratesAirport][state.dir];
   const km = parseFloat(document.getElementById('contract-km').value||'');
   if (isNaN(km)||km<=0) return null;
@@ -1196,9 +1585,11 @@ function calc() {
   const cash  = parseFloat(document.getElementById('highway-cash').value||0)||0;
   const kaiso = parseFloat(document.getElementById('hire-highway-kaiso').value||0)||0;
   const meet  = parseFloat(state.meetFee)||0;
+  const shaShitei   = state.opts.shaShitei   ? 2000 : 0;
+  const jikanShitei = state.opts.jikanShitei ? 1000 : 0;
   const persons = document.getElementById('persons').value;
   const highway = etc + cash;
-  const total = fareResult!=null ? fareResult + highway + kaiso + meet : null;
+  const total = fareResult!=null ? fareResult + highway + kaiso + meet + shaShitei + jikanShitei : null;
 
   const box = document.getElementById('result-box');
   if (total==null) { box.innerHTML='<div class="placeholder">条件を選択してください</div>'; return; }
@@ -1209,6 +1600,8 @@ function calc() {
   if (kaiso>0) html += bdRow('回送高速', fmt(kaiso));
   if (meet>0) html += bdRow('ミート料', fmt(meet));
   if (persons) html += bdRow('人数', persons+'名');
+  if (shaShitei)   html += bdRow('車種指定', fmt(shaShitei));
+  if (jikanShitei) html += bdRow('時間指定', fmt(jikanShitei));
   if (state.lateNight && state.tab!=='contract') html += bdRow('深夜早朝', '適用', true);
   if (state.tab==='contract' && state.contract==='emirates') {
     const km = parseFloat(document.getElementById('contract-km').value||'');
