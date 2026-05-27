@@ -163,9 +163,13 @@
 
 <div class="header">
   <div class="logo">MK</div>
-  <div>
+  <div style="flex:1">
     <div class="h1">MK 料金計算</div>
-    <div class="h2">2026.5.21〜 料金表準拠</div>
+    <div class="h2">料金表準拠</div>
+  </div>
+  <div class="type-switch" style="width:auto;margin:0;flex-shrink:0">
+    <button class="type-switch-btn active" id="rate-new-btn" onclick="setRateMode('new')" style="font-size:11px;padding:5px 10px">新料金</button>
+    <button class="type-switch-btn" id="rate-old-btn" onclick="setRateMode('old')" style="font-size:11px;padding:5px 10px">旧料金</button>
   </div>
 </div>
 
@@ -181,13 +185,13 @@
 
   <!-- 車種・区分（契約・ルール以外） -->
   <div id="car-section" class="section">
-    <div class="seg-group">
+    <div class="seg-group" id="car-btns-group">
       <button class="seg-btn active" onclick="setCar('luxury')">ラグ</button>
       <button class="seg-btn" onclick="setCar('exec')">エグゼ</button>
       <button class="seg-btn" onclick="setCar('first')">ファースト</button>
       <div style="width:6px"></div>
       <button class="seg-btn active" id="btn-gen" onclick="setMember(false)">一般</button>
-      <button class="seg-btn" id="btn-mem" onclick="setMember(true)">会員</button>
+      <button class="seg-btn" id="btn-mem" onclick="setMember(true)">会員・ホテル</button>
     </div>
     <div class="car-note" id="car-note">ベンツV / グランエース / アルファード</div>
   </div>
@@ -434,6 +438,13 @@
 
   <!-- ===== ハイヤー貸切 ===== -->
   <div id="tab-hire" class="section" style="display:none">
+    <!-- 貸切/ゴルフパック切替（旧料金時のみ表示） -->
+    <div id="hire-mode-switch" style="display:none;margin-bottom:12px">
+      <div class="type-switch">
+        <button class="type-switch-btn active" id="hire-mode-charter" onclick="setHireMode('charter')">貸切</button>
+        <button class="type-switch-btn" id="hire-mode-golf" onclick="setHireMode('golf')">ゴルフパック</button>
+      </div>
+    </div>
 
     <!-- 予約時刻 -->
     <div class="label">予約時刻</div>
@@ -742,6 +753,96 @@ const HANEDA_HIRE_OT = {
   luxury:{gen:4000,mem:3600}, exec:{gen:4500,mem:4050}, first:{gen:10000,mem:9000}
 };
 
+// ============================================================
+// 旧料金データ（2024年版）
+// ============================================================
+// 旧羽田定額 [first_gen, first_mem, exec_gen, exec_mem, lux_gen, lux_mem, std_gen, std_mem]
+// first=ロールスロイス/マイバッハ, exec=レクサスLS500・LM500・ベンツS550
+// lux=レクサスLS460・ベンツV・グランエース等, std=アルファード・クラウン等
+const OLD_HANEDA_HIRE = {
+  "大田・品川":           { first:{gen:40000,mem:35000}, exec:{gen:20000,mem:18000}, luxury:{gen:17000,mem:16000}, std:{gen:15000,mem:14000}, extra:{gen:14000,mem:13000} },
+  "江東・中央・港":       { first:{gen:40000,mem:35000}, exec:{gen:22000,mem:20000}, luxury:{gen:19000,mem:17000}, std:{gen:17000,mem:15000}, extra:{gen:16000,mem:14000} },
+  "荒川・渋谷・新宿・墨田・台東・千代田・文京・目黒": { first:{gen:40000,mem:35000}, exec:{gen:27000,mem:25000}, luxury:{gen:23000,mem:21000}, std:{gen:21000,mem:19000}, extra:{gen:19000,mem:17000} },
+  "足立・板橋・江戸川・葛飾・杉並・世田谷・豊島・中野": { first:{gen:40000,mem:35000}, exec:{gen:33000,mem:30000}, luxury:{gen:28000,mem:25000}, std:{gen:24000,mem:22000}, extra:{gen:23000,mem:20000} },
+  "練馬・北":             { first:{gen:40000,mem:35000}, exec:{gen:38000,mem:35000}, luxury:{gen:32000,mem:29000}, std:{gen:28000,mem:25000}, extra:{gen:26000,mem:24000} },
+};
+const OLD_HANEDA_HIRE_OT = {
+  first:{gen:7500,mem:7500}, exec:{gen:5100,mem:5100}, luxury:{gen:4100,mem:4100}, std:{gen:3800,mem:3800}, extra:{gen:3600,mem:3600}
+};
+
+// 旧成田定額
+const OLD_NARITA_HIRE = {
+  "送り（1.5H）": { first:{gen:80000,mem:70000}, exec:{gen:57000,mem:51000}, luxury:{gen:46000,mem:41000}, std:{gen:41000,mem:36000}, extra:{gen:37000,mem:33000} },
+  "迎え（2.5H）": { first:{gen:80000,mem:70000}, exec:{gen:62000,mem:57000}, luxury:{gen:51000,mem:46000}, std:{gen:46000,mem:41000}, extra:{gen:42000,mem:38000} },
+  "往復（4H）":   { first:{gen:140000,mem:120000}, exec:{gen:97000,mem:87000}, luxury:{gen:87000,mem:77000}, std:{gen:77000,mem:70000}, extra:{gen:67000,mem:61000} },
+};
+// 旧成田ESD: 送り5000/迎え5000/往復10000
+const OLD_NARITA_ESD = { "送り（1.5H）":5000, "迎え（2.5H）":5000, "往復（4H）":10000 };
+
+// 旧貸切料金表（一般/会員）
+// first=ロールスロイス/マイバッハ, exec=レクサスLS500, lux=レクサスLS460・ベンツV等, std=アルファード等
+const OLD_HIRE_TABLE = [
+  {h:1.0, km:15,   ftG:80000,ftM:60000, exG:21540,exM:19380, lxG:19230,lxM:17300, stG:16940,stM:15240, sdG:15790,sdM:14210},
+  {h:1.5, km:22.5, ftG:null, ftM:null,  exG:26480,exM:23830, lxG:23590,lxM:21230, stG:20710,stM:18630, sdG:19270,sdM:17340},
+  {h:2.0, km:30,   ftG:null, ftM:null,  exG:31420,exM:28270, lxG:27950,lxM:25150, stG:24480,stM:22030, sdG:22750,sdM:20470},
+  {h:2.5, km:37.5, ftG:null, ftM:null,  exG:36360,exM:32720, lxG:32310,lxM:29070, stG:28250,stM:25420, sdG:26230,sdM:23600},
+  {h:3.0, km:45,   ftG:null, ftM:null,  exG:41300,exM:37170, lxG:36670,lxM:33000, stG:32020,stM:28810, sdG:29710,sdM:26730},
+  {h:3.5, km:52.5, ftG:null, ftM:null,  exG:46240,exM:41610, lxG:41030,lxM:36920, stG:35790,stM:32210, sdG:33190,sdM:29870},
+  {h:4.0, km:60,   ftG:null, ftM:null,  exG:51180,exM:46060, lxG:45390,lxM:40850, stG:39560,stM:35600, sdG:36670,sdM:33000},
+  {h:4.5, km:67.5, ftG:90000,ftM:67000, exG:56120,exM:50500, lxG:49750,lxM:44770, stG:43330,stM:38990, sdG:40150,sdM:36130},
+  {h:5.0, km:75,   ftG:100000,ftM:74000,exG:61060,exM:54950, lxG:54110,lxM:48690, stG:47100,stM:42390, sdG:43630,sdM:39260},
+  {h:5.5, km:82.5, ftG:110000,ftM:81000,exG:66000,exM:59400, lxG:58470,lxM:52620, stG:50870,stM:45780, sdG:47110,sdM:42390},
+  {h:6.0, km:90,   ftG:120000,ftM:88000,exG:70940,exM:63840, lxG:62830,lxM:56540, stG:54640,stM:49170, sdG:50590,sdM:45530},
+  {h:6.5, km:97.5, ftG:130000,ftM:95000,exG:75880,exM:68290, lxG:67190,lxM:60470, stG:58410,stM:52560, sdG:54070,sdM:48660},
+  {h:7.0, km:105,  ftG:140000,ftM:102000,exG:80820,exM:72730,lxG:71550,lxM:64390, stG:62180,stM:55960, sdG:57550,sdM:51790},
+  {h:7.5, km:112.5,ftG:150000,ftM:109000,exG:85760,exM:77180,lxG:75910,lxM:68310, stG:65950,stM:59350, sdG:61030,sdM:54920},
+  {h:8.0, km:120,  ftG:160000,ftM:116000,exG:90700,exM:81630,lxG:80270,lxM:72240, stG:69720,stM:62740, sdG:64510,sdM:58050},
+  {h:8.5, km:127.5,ftG:170000,ftM:123000,exG:95640,exM:86070,lxG:84630,lxM:76160, stG:73490,stM:66140, sdG:67990,sdM:61190},
+  {h:9.0, km:135,  ftG:180000,ftM:130000,exG:100580,exM:90520,lxG:88990,lxM:80090,stG:77260,stM:69530, sdG:71470,sdM:64320},
+  {h:9.5, km:142.5,ftG:190000,ftM:137000,exG:105520,exM:94960,lxG:93350,lxM:84010,stG:81030,stM:72920, sdG:74950,sdM:67450},
+  {h:10.0,km:150,  ftG:200000,ftM:144000,exG:110460,exM:99410,lxG:97710,lxM:87930,stG:84800,stM:76320, sdG:78430,sdM:70580},
+  {h:10.5,km:157.5,ftG:210000,ftM:151000,exG:115400,exM:103860,lxG:102070,lxM:91860,stG:88570,stM:79710,sdG:81910,sdM:73710},
+  {h:11.0,km:165,  ftG:220000,ftM:158000,exG:120340,exM:108300,lxG:106430,lxM:95780,stG:92340,stM:83100,sdG:85390,sdM:76850},
+  {h:11.5,km:172.5,ftG:230000,ftM:165000,exG:125280,exM:112750,lxG:110790,lxM:99710,stG:96110,stM:86490,sdG:88870,sdM:79980},
+  {h:12.0,km:180,  ftG:240000,ftM:172000,exG:130220,exM:117190,lxG:115150,lxM:103630,stG:99880,stM:89890,sdG:92350,sdM:83110},
+  {h:12.5,km:187.5,ftG:250000,ftM:179000,exG:135160,exM:121640,lxG:119510,lxM:107550,stG:103650,stM:93280,sdG:95830,sdM:86240},
+  {h:13.0,km:195,  ftG:260000,ftM:186000,exG:140100,exM:126090,lxG:123870,lxM:111480,stG:107420,stM:96670,sdG:99310,sdM:89370},
+  {h:13.5,km:202.5,ftG:270000,ftM:193000,exG:145040,exM:130530,lxG:128230,lxM:115400,stG:111190,stM:100070,sdG:102790,sdM:92510},
+  {h:14.0,km:210,  ftG:280000,ftM:200000,exG:149980,exM:134980,lxG:132590,lxM:119330,stG:114960,stM:103460,sdG:106270,sdM:95640},
+  {h:14.5,km:217.5,ftG:290000,ftM:207000,exG:154920,exM:139420,lxG:136950,lxM:123250,stG:118730,stM:106850,sdG:109750,sdM:98770},
+  {h:15.0,km:225,  ftG:300000,ftM:214000,exG:159860,exM:143870,lxG:141310,lxM:127170,stG:122500,stM:110250,sdG:113230,sdM:101900},
+  {h:15.5,km:232.5,ftG:310000,ftM:221000,exG:164800,exM:148320,lxG:145670,lxM:131100,stG:126270,stM:113640,sdG:116710,sdM:105030},
+  {h:16.0,km:240,  ftG:320000,ftM:228000,exG:169740,exM:152760,lxG:150030,lxM:135020,stG:130040,stM:117030,sdG:120190,sdM:108170},
+  {h:16.5,km:247.5,ftG:330000,ftM:235000,exG:174680,exM:157210,lxG:154390,lxM:138950,stG:133810,stM:120420,sdG:123670,sdM:111300},
+  {h:17.0,km:255,  ftG:340000,ftM:242000,exG:179620,exM:161650,lxG:158750,lxM:142870,stG:137580,stM:123820,sdG:127150,sdM:114430},
+  {h:17.5,km:262.5,ftG:350000,ftM:249000,exG:184560,exM:166100,lxG:163110,lxM:146790,stG:141350,stM:127210,sdG:130630,sdM:117560},
+  {h:18.0,km:270,  ftG:360000,ftM:256000,exG:189500,exM:170550,lxG:167470,lxM:150720,stG:145120,stM:130600,sdG:134110,sdM:120690},
+  {h:18.5,km:277.5,ftG:370000,ftM:263000,exG:194440,exM:174990,lxG:171830,lxM:154640,stG:148890,stM:134000,sdG:137590,sdM:123830},
+  {h:19.0,km:285,  ftG:380000,ftM:270000,exG:199380,exM:179440,lxG:176190,lxM:158570,stG:152660,stM:137390,sdG:141070,sdM:126960},
+  {h:19.5,km:292.5,ftG:390000,ftM:277000,exG:204320,exM:183880,lxG:180550,lxM:162490,stG:156430,stM:140780,sdG:144550,sdM:130090},
+  {h:20.0,km:300,  ftG:400000,ftM:284000,exG:209260,exM:188330,lxG:184910,lxM:166410,stG:160200,stM:144180,sdG:148030,sdM:133220},
+];
+const OLD_HIRE_OT = {
+  first:{gen:10000,mem:7000}, exec:{gen:4940,mem:4360}, luxury:{gen:4360,mem:4360}, std:{gen:3770,mem:3770}, extra:{gen:3480,mem:3480}
+};
+
+// ゴルフパック（旧料金・ラグジュアリークラス会員のみ記載あり）
+// 実際はlux/std/extraの3クラス
+const OLD_GOLF_TABLE = [
+  {h:10.0, km:150,  lxM:77000, stM:65000, sdM:59000},
+  {h:10.5, km:165,  lxM:81500, stM:68500, sdM:62000},
+  {h:11.0, km:180,  lxM:86000, stM:72000, sdM:65000},
+  {h:11.5, km:195,  lxM:90500, stM:75500, sdM:68000},
+  {h:12.0, km:210,  lxM:95000, stM:79000, sdM:71000},
+  {h:12.5, km:225,  lxM:99500, stM:82500, sdM:74000},
+  {h:13.0, km:240,  lxM:104000,stM:86000, sdM:77000},
+  {h:13.5, km:255,  lxM:108500,stM:89500, sdM:80000},
+  {h:14.0, km:270,  lxM:113000,stM:93000, sdM:83000},
+  {h:14.5, km:285,  lxM:117500,stM:96500, sdM:86000},
+  {h:15.0, km:300,  lxM:122000,stM:100000,sdM:89000},
+];
+const OLD_GOLF_OT = { lxM:4500, stM:3500, sdM:3000 };
+
 // 羽田タクシー定額（2026/4/29改訂）通常/深夜/障がい者/深夜+障がい者
 const HANEDA_TAXI = {
   "千代田区": [7600,9000,6800,8100],
@@ -925,6 +1026,7 @@ const RULES = [
 // ============================================================
 let state = {
   tab:'haneda', car:'luxury', member:false, lateNight:false, esd:false,
+  rateMode:'new', hireMode:'charter',
   hType:'hire', nType_mode:'hire',
   hArea:'', hDir:'up', hBookStart:'', hComplete:'', hNT:'', hCompleteDown:'',
   nType:'送迎（通り/2H）', nDir:'up', nBookStart:'', nComplete:'', nNT:'', nCompleteDown:'',
@@ -952,6 +1054,7 @@ function init() {
     if (r.h === 2.0) o.selected = true;
     sel.appendChild(o);
   });
+  // ゴルフパック用の時間は別途calc時に動的生成
   buildRules(RULES);
   const emNotes = RULES.find(r=>r.cat==='エミレーツ航空');
   if (emNotes) {
@@ -1134,6 +1237,98 @@ function toggleOpt(key) {
 function setTrack(id, on) {
   const el = document.getElementById(id);
   if (el) el.classList.toggle('on', on);
+}
+
+function setRateMode(mode) {
+  state.rateMode = mode;
+  document.getElementById('rate-new-btn').classList.toggle('active', mode==='new');
+  document.getElementById('rate-old-btn').classList.toggle('active', mode==='old');
+  // ゴルフパックボタンは旧料金のみ表示
+  const golfSwitch = document.getElementById('hire-mode-switch');
+  if (golfSwitch) golfSwitch.style.display = mode==='old' ? 'block' : 'none';
+  if (mode==='new') { state.hireMode='charter'; setHireMode('charter'); }
+  // 旧料金では羽田成田のハイヤーエリアが違うのでリセット
+  // 車種に「std」「extra」を追加/削除
+  updateCarOptions();
+  // 羽田エリアを旧/新で切替
+  updateHanedaAreas();
+  // 成田タイプを旧/新で切替
+  updateNaritaTypes();
+  // ヘッダーの日付表示
+  document.querySelector('.h2').textContent = mode==='new' ? '2026.5.21〜 料金表準拠' : '2024年 旧料金表';
+  calc();
+}
+
+function setHireMode(mode) {
+  state.hireMode = mode;
+  document.getElementById('hire-mode-charter').classList.toggle('active', mode==='charter');
+  document.getElementById('hire-mode-golf').classList.toggle('active', mode==='golf');
+  // 時間ドロップダウンを切替
+  const sel = document.getElementById('hire-h');
+  sel.innerHTML = '';
+  const table = mode==='golf' ? OLD_GOLF_TABLE : (state.rateMode==='old' ? OLD_HIRE_TABLE : HIRE_TABLE);
+  const defaultH = mode==='golf' ? 10.0 : 2.0;
+  table.forEach(r => {
+    const o = document.createElement('option');
+    o.value = r.h;
+    o.textContent = r.h + 'h（目安 ' + r.km + 'km）';
+    if (r.h === defaultH) o.selected = true;
+    sel.appendChild(o);
+  });
+  calc();
+}
+
+function updateCarOptions() {
+  const isOld = state.rateMode === 'old';
+  // 旧料金時のみスタンダードクラスボタンを表示
+  let stdBtns = document.getElementById('std-car-btns');
+  if (!stdBtns) {
+    // 動的に追加
+    stdBtns = document.createElement('div');
+    stdBtns.id = 'std-car-btns';
+    stdBtns.innerHTML = `
+      <button class="seg-btn" onclick="setCar('std')">スタンダード</button>
+      <button class="seg-btn" onclick="setCar('extra')">エキストラ</button>
+    `;
+    document.getElementById('car-btns-group').appendChild(stdBtns);
+  }
+  stdBtns.style.display = isOld ? 'contents' : 'none';
+  // 旧料金でstd/extraが選択されてたら新料金切替時にluxuryに戻す
+  if (!isOld && ['std','extra'].includes(state.car)) {
+    setCar('luxury');
+  }
+}
+
+function updateHanedaAreas() {
+  const isOld = state.rateMode === 'old';
+  const sel = document.getElementById('h-area');
+  sel.innerHTML = '<option value="">選択してください</option>';
+  const areas = isOld ? Object.keys(OLD_HANEDA_HIRE) : Object.keys(HANEDA_HIRE);
+  areas.forEach(a => {
+    const o = document.createElement('option');
+    o.value = a; o.textContent = a;
+    sel.appendChild(o);
+  });
+}
+
+function updateNaritaTypes() {
+  const isOld = state.rateMode === 'old';
+  const btns = document.getElementById('narita-type-btns');
+  if (isOld) {
+    btns.innerHTML = `
+      <button class="seg-btn active" onclick="setNaritaType('送り（1.5H）')">送り/1.5H</button>
+      <button class="seg-btn" onclick="setNaritaType('迎え（2.5H）')">迎え/2.5H</button>
+      <button class="seg-btn" onclick="setNaritaType('往復（4H）')">往復/4H</button>
+    `;
+    state.nType = '送り（1.5H）';
+  } else {
+    btns.innerHTML = `
+      <button class="seg-btn active" onclick="setNaritaType('送迎（通り/2H）')">通り/2H</button>
+      <button class="seg-btn" onclick="setNaritaType('送迎（迎え/3H）')">迎え/3H</button>
+      <button class="seg-btn" onclick="setNaritaType('送迎（往復/5H）')">往復/5H</button>
+    `;
+    state.nType = '送迎（通り/2H）';
+  }
 }
 
 function setAirportDir(prefix, dir) {
@@ -1433,20 +1628,34 @@ function calcHaneda() {
   if (state.hType === 'taxi') return calcHanadaTaxi();
   const area = document.getElementById('h-area').value;
   if (!area) return null;
+  const mk = state.member ? 'mem' : 'gen';
+
+  if (state.rateMode === 'old') {
+    const d = OLD_HANEDA_HIRE[area]?.[state.car];
+    if (!d) return null;
+    let base = applyLate(d[mk]);
+    const dir = state.hDir;
+    const startTime = dir==='up' ? state.hBookStart : state.hNT;
+    const endTime   = dir==='up' ? state.hComplete  : state.hCompleteDown;
+    const totalH    = timeDiffH(startTime, endTime);
+    const limitH    = dir==='up' ? 0.5 : 1.0; // 旧: UP30分超/DOWN1時間超
+    const otH       = totalH!=null && totalH>limitH ? Math.ceil((totalH-limitH)/0.5)*0.5 : 0;
+    const ot        = otH>0 ? applyLate(Math.floor(otH/0.5)*OLD_HANEDA_HIRE_OT[state.car][mk]) : 0;
+    const esdAmt    = state.esd && totalH!=null ? calcESD(dir==='up'?1:2) : (state.esd ? calcESD(1.5) : 0);
+    return base + ot + esdAmt;
+  }
+
   const d = HANEDA_HIRE[area]?.[state.car];
   if (!d) return null;
-  let base = applyLate(d[getMK()]);
-
-  // 超過・ESD自動計算
+  let base = applyLate(d[mk]);
   const dir = state.hDir;
   const startTime = dir==='up' ? state.hBookStart : state.hNT;
   const endTime   = dir==='up' ? state.hComplete  : state.hCompleteDown;
   const totalH    = timeDiffH(startTime, endTime);
   const limitH    = dir==='up' ? 1.5 : 2.0;
   const otH       = totalH!=null && totalH>limitH ? Math.ceil((totalH-limitH)/0.5)*0.5 : 0;
-  const ot        = otH>0 ? applyLate(Math.floor(otH/0.5)*HANEDA_HIRE_OT[state.car][getMK()]) : 0;
+  const ot        = otH>0 ? applyLate(Math.floor(otH/0.5)*HANEDA_HIRE_OT[state.car][mk]) : 0;
   const esdAmt    = state.esd && totalH!=null ? calcESD(totalH) : (state.esd ? calcESD(1.5) : 0);
-
   return base + ot + esdAmt;
 }
 
@@ -1471,12 +1680,22 @@ function calcHanadaTaxi() {
 
 function calcNarita() {
   if (state.nType_mode === 'taxi') return calcNaritaTaxi();
+  const mk = state.member ? 'mem' : 'gen';
+
+  if (state.rateMode === 'old') {
+    const d = OLD_NARITA_HIRE[state.nType]?.[state.car];
+    if (!d) return null;
+    const base = d[mk];
+    if (base == null) return null;
+    // 旧成田: 高速・駐車代込み。ESDは送り/迎え¥5,000、往復¥10,000固定
+    const esdAmt = state.esd ? (OLD_NARITA_ESD[state.nType] || 0) : 0;
+    return applyLate(base) + esdAmt;
+  }
+
   const d = NARITA_HIRE[state.nType]?.[state.car];
   if (!d) return null;
   const base = d[getMK()];
   if (base == null) return null;
-
-  // 超過・ESD自動計算
   const dir = state.nDir;
   const startTime = dir==='up' ? state.nBookStart : state.nNT;
   const endTime   = dir==='up' ? state.nComplete  : state.nCompleteDown;
@@ -1486,7 +1705,6 @@ function calcNarita() {
   const ot        = otH>0 ? applyLate(Math.floor(otH/0.5)*NARITA_HIRE_OT[state.car][getMK()]) : 0;
   const baseH     = state.nType.includes('5H') ? 5 : state.nType.includes('3H') ? 3 : 2;
   const esdAmt    = state.esd && totalH!=null ? calcESD(totalH) : (state.esd ? calcESD(baseH) : 0);
-
   return applyLate(base) + ot + esdAmt;
 }
 
@@ -1507,9 +1725,45 @@ function calcNaritaTaxi() {
 
 function calcHire() {
   const mk = getMK();
+  const mem = state.member;
+
+  if (state.rateMode === 'old') {
+    if (state.hireMode === 'golf') return calcGolf();
+    // 旧貸切
+    const car = state.car;
+    const keyG = car==='first'?'ftG':car==='exec'?'exG':car==='luxury'?'lxG':car==='std'?'stG':'sdG';
+    const keyM = car==='first'?'ftM':car==='exec'?'exM':car==='luxury'?'lxM':car==='std'?'stM':'sdM';
+    const priceKey = mem ? keyM : keyG;
+    const bookH = timeDiffH(state.bookStart, state.bookEnd);
+    const baseH = bookH!=null ? roundUpHalf(bookH) : parseFloat(document.getElementById('hire-h').value||2);
+    const timeRow = OLD_HIRE_TABLE.find(r=>r.h===baseH) ?? [...OLD_HIRE_TABLE].reverse().find(r=>r.h<=baseH);
+    const timePrice = timeRow?.[priceKey] ?? null;
+    const km = parseFloat(document.getElementById('hire-km').value||'');
+    let distPrice = null;
+    if (!isNaN(km) && km>0) {
+      const dr = [...OLD_HIRE_TABLE].reverse().find(r=>r.km<=km);
+      if (dr) distPrice = dr[priceKey];
+    }
+    const candidates = [timePrice, distPrice].filter(v=>v!=null);
+    if (candidates.length===0) return null;
+    let base = Math.max(...candidates);
+    let overtimeH = 0;
+    if (state.bookEnd && state.rideEnd) {
+      const [bh,bm] = state.bookEnd.split(':').map(Number);
+      const [rh,rm] = state.rideEnd.split(':').map(Number);
+      let diff = (rh*60+rm)-(bh*60+bm);
+      if (diff>0) overtimeH = Math.ceil(diff/30)*0.5;
+    }
+    const otAmt = overtimeH>0 ? Math.floor(overtimeH/0.5)*OLD_HIRE_OT[car][mk] : 0;
+    base = applyLate(base+otAmt);
+    updateHireInfo(timePrice, distPrice);
+    return base + (state.esd ? calcESD(baseH) : 0);
+  }
+
+  // 新貸切
   const keyG = state.car==='luxury'?'lxG':state.car==='exec'?'exG':'ftG';
   const keyM = state.car==='luxury'?'lxM':state.car==='exec'?'exM':'ftM';
-  const priceKey = state.member ? keyM : keyG;
+  const priceKey = mem ? keyM : keyG;
   const bookH = timeDiffH(state.bookStart, state.bookEnd);
   const baseH = bookH!=null ? roundUpHalf(bookH) : parseFloat(document.getElementById('hire-h').value||2);
   const timeRow = HIRE_TABLE.find(r=>r.h===baseH) ?? [...HIRE_TABLE].reverse().find(r=>r.h<=baseH);
@@ -1532,6 +1786,11 @@ function calcHire() {
   }
   const otAmt = overtimeH>0 ? Math.floor(overtimeH/0.5)*HIRE_OT[state.car][mk] : 0;
   base = applyLate(base+otAmt);
+  updateHireInfo(timePrice, distPrice);
+  return base + (state.esd ? calcESD(baseH) : 0);
+}
+
+function updateHireInfo(timePrice, distPrice) {
   const infoBox = document.getElementById('hire-info');
   if (timePrice!=null || distPrice!=null) {
     infoBox.style.display='flex';
@@ -1542,7 +1801,26 @@ function calcHire() {
     if (distPrice!=null) sub+=' 距離制'+fmt(distPrice);
     document.getElementById('hire-info-sub').textContent=sub;
   } else infoBox.style.display='none';
-  return base + (state.esd ? calcESD(baseH) : 0);
+}
+
+function calcGolf() {
+  // ゴルフパック（旧料金・会員のみ）
+  const car = state.car;
+  const keyM = car==='luxury'?'lxM':car==='std'?'stM':'sdM';
+  const hireH = parseFloat(document.getElementById('hire-h').value||10);
+  const row = OLD_GOLF_TABLE.find(r=>r.h===hireH) ?? [...OLD_GOLF_TABLE].reverse().find(r=>r.h<=hireH);
+  const base = row?.[keyM] ?? null;
+  if (base == null) return null;
+  // 延長
+  let overtimeH = 0;
+  if (state.bookEnd && state.rideEnd) {
+    const [bh,bm] = state.bookEnd.split(':').map(Number);
+    const [rh,rm] = state.rideEnd.split(':').map(Number);
+    let diff = (rh*60+rm)-(bh*60+bm);
+    if (diff>0) overtimeH = Math.ceil(diff/30)*0.5;
+  }
+  const otAmt = overtimeH>0 ? Math.floor(overtimeH/0.5)*OLD_GOLF_OT[keyM] : 0;
+  return base + otAmt + (state.esd ? calcESD(hireH) : 0);
 }
 
 function calcContract() {
