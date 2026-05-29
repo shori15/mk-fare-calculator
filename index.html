@@ -93,11 +93,23 @@ async function decryptApp(password) {
 // 復号したHTMLをページに挿入して実行
 function injectApp(html) {
   const root = document.getElementById('app-root');
-  // HTMLとscriptを分離
+
+  // styleタグを抽出してheadに追加
+  const styleMatch = html.match(/<style>([\s\S]*?)<\/style>/);
+  if (styleMatch) {
+    const style = document.createElement('style');
+    style.textContent = styleMatch[1];
+    document.head.appendChild(style);
+  }
+
+  // scriptタグを抽出
   const scriptMatch = html.match(/<script>([\s\S]*)<\/script>/);
   const scriptContent = scriptMatch ? scriptMatch[1] : '';
-  const htmlContent = html.replace(/<script>[\s\S]*<\/script>/, '');
 
+  // styleとscriptを除いたHTMLを挿入
+  const htmlContent = html
+    .replace(/<style>[\s\S]*?<\/style>/, '')
+    .replace(/<script>[\s\S]*<\/script>/, '');
   root.innerHTML = htmlContent;
 
   // scriptを実行
