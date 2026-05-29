@@ -1,7 +1,8 @@
-const CACHE_NAME = 'mk-fare-v1';
+const CACHE_NAME = 'mk-fare-v2';
 const ASSETS = [
   './',
   './index.html',
+  './app.enc',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
