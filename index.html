@@ -307,14 +307,6 @@
       </div>
     </div>
     <div id="h-taxi-opts" style="display:none">
-      <div class="toggle-row" onclick="toggleOpt('yoyaku')">
-        <div class="toggle-track" id="track-yoyaku"><div class="toggle-thumb"></div></div>
-        <span class="toggle-label">予約配車（+¥1,000）</span>
-      </div>
-      <div class="toggle-row" onclick="toggleOpt('hg')">
-        <div class="toggle-track" id="track-hg"><div class="toggle-thumb"></div></div>
-        <span class="toggle-label">HG指定（+¥2,000）※予約配車不可</span>
-      </div>
       <div class="toggle-row" onclick="toggleOpt('esd-taxi')">
         <div class="toggle-track" id="track-esd-taxi"><div class="toggle-thumb"></div></div>
         <span class="toggle-label">ESD（+¥2,000/1H毎）</span>
@@ -421,14 +413,6 @@
       </div>
     </div>
     <div id="n-taxi-opts" style="display:none">
-      <div class="toggle-row" onclick="toggleOpt('yoyaku-n')">
-        <div class="toggle-track" id="track-yoyaku-n"><div class="toggle-thumb"></div></div>
-        <span class="toggle-label">予約配車（+¥1,000）</span>
-      </div>
-      <div class="toggle-row" onclick="toggleOpt('hg-n')">
-        <div class="toggle-track" id="track-hg-n"><div class="toggle-thumb"></div></div>
-        <span class="toggle-label">HG指定（+¥2,000）※予約配車不可</span>
-      </div>
       <div class="toggle-row" onclick="toggleOpt('esd-taxi-n')">
         <div class="toggle-track" id="track-esd-taxi-n"><div class="toggle-thumb"></div></div>
         <span class="toggle-label">ESD（+¥5,000/1台毎）</span>
@@ -693,17 +677,17 @@
           <span class="unit">円</span>
         </div>
       </div>
-      <!-- 車種指定・時間指定（契約以外） -->
+      <!-- 車種指定・時間指定（全タブ共通・契約以外） -->
       <div id="designation-opts" style="display:none">
         <div class="spacer"></div>
         <div class="label">指定料金</div>
-        <div class="toggle-row" onclick="toggleOpt('shaShitei')">
-          <div class="toggle-track" id="track-shaShitei"><div class="toggle-thumb"></div></div>
-          <span class="toggle-label">車種指定（+¥2,000）</span>
-        </div>
         <div class="toggle-row" onclick="toggleOpt('jikanShitei')">
           <div class="toggle-track" id="track-jikanShitei"><div class="toggle-thumb"></div></div>
           <span class="toggle-label">時間指定（+¥1,000）</span>
+        </div>
+        <div class="toggle-row" onclick="toggleOpt('shaShitei')">
+          <div class="toggle-track" id="track-shaShitei"><div class="toggle-thumb"></div></div>
+          <span class="toggle-label">車種指定（+¥2,000）</span>
         </div>
       </div>
     </div>
@@ -969,7 +953,7 @@ const RULES = [
     {t:"適用ルート",b:"羽田空港↔東京23区内・武蔵野市・三鷹市の直行送迎。グレーゾーン地区の定額設定なし。"},
     {t:"超過料金",b:"便の到着からお供完了まで3時間を超えた場合、¥2,700/30分ごと。"},
     {t:"深夜早朝割増",b:"乗車から降車までの時間が深夜早朝時間帯（22時〜翌5時）の中にすべて含まれる場合に適用。"},
-    {t:"オプション",b:"予約配車+¥1,000 / HG指定+¥2,000（予約配車と併用不可）/ ESD+¥2,000/1H毎 / ミート+¥8,000"},
+    {t:"オプション",b:"時間指定+¥1,000 / 車種指定+¥2,000 / ESD+¥2,000/1H毎 / ミート+¥8,000"},
   ]},
   {cat:"成田定額（ハイヤー）",icon:"🛬",items:[
     {t:"適用ルート",b:"成田空港↔東京23区内の直行送迎のみ。経由地がある場合は貸切料金。"},
@@ -980,7 +964,7 @@ const RULES = [
     {t:"適用ルート",b:"成田空港↔東京23区内の直行送迎。4ゾーン制。"},
     {t:"超過料金",b:"便の到着からお供完了まで3時間を超えた場合、¥2,700/30分ごと。"},
     {t:"深夜早朝割増",b:"乗車から降車までの時間が深夜早朝時間帯（22時〜翌5時）の中にすべて含まれる場合に適用。"},
-    {t:"オプション",b:"予約配車+¥1,000 / HG指定+¥2,000（予約配車と併用不可）/ ESD+¥5,000/1台毎 / ミート+¥8,000（■は必須）"},
+    {t:"オプション",b:"時間指定+¥1,000 / 車種指定+¥2,000 / ESD+¥5,000/1台毎 / ミート+¥8,000（■は必須）"},
   ]},
   {cat:"ハイヤー貸切",icon:"🚘",items:[
     {t:"時間制 vs 距離制",b:"「時間に応じた料金」と「走行距離に応じた料金」を比較し、高い方を適用。"},
@@ -1032,7 +1016,7 @@ let state = {
   nType:'送迎（通り/2H）', nDir:'up', nBookStart:'', nComplete:'', nNT:'', nCompleteDown:'',
   hTaxiArea:'', hTaxiOT:0,
   nTaxiArea:'', nTaxiOT:0,
-  opts:{ yoyaku:false, hg:false, 'esd-taxi':false, 'yoyaku-n':false, 'hg-n':false, 'esd-taxi-n':false, shaShitei:false, jikanShitei:false },
+  opts:{ 'esd-taxi':false, 'esd-taxi-n':false, shaShitei:false, jikanShitei:false },
   esdTaxiHours:0,
   hireH:2.0, hireKm:'',
   bookStart:'', bookEnd:'', rideStart:'', rideEnd:'',
@@ -1221,11 +1205,6 @@ function toggleEsd() {
 }
 
 function toggleOpt(key) {
-  // HGとyoyakuは相互排他
-  if (key==='hg' && !state.opts[key]) { state.opts['yoyaku']=false; setTrack('track-yoyaku',false); }
-  if (key==='yoyaku' && !state.opts[key]) { state.opts['hg']=false; setTrack('track-hg',false); }
-  if (key==='hg-n' && !state.opts[key]) { state.opts['yoyaku-n']=false; setTrack('track-yoyaku-n',false); }
-  if (key==='yoyaku-n' && !state.opts[key]) { state.opts['hg-n']=false; setTrack('track-hg-n',false); }
   state.opts[key] = !state.opts[key];
   setTrack('track-'+key, state.opts[key]);
   if (key==='esd-taxi') {
@@ -1669,8 +1648,6 @@ function calcHanadaTaxi() {
   const otUnits = Math.floor(parseFloat(document.getElementById('h-taxi-ot').value||0)/0.5);
   const ot = otUnits * TAXI_OT_RATE;
   let opts = 0;
-  if (state.opts['yoyaku']) opts += 1000;
-  if (state.opts['hg']) opts += 2000;
   if (state.opts['esd-taxi']) {
     const h = parseFloat(document.getElementById('esd-taxi-hours').value||0)||0;
     opts += h * 2000;
@@ -1717,8 +1694,6 @@ function calcNaritaTaxi() {
   const otUnits = Math.floor(parseFloat(document.getElementById('n-taxi-ot').value||0)/0.5);
   const ot = otUnits * TAXI_OT_RATE;
   let opts = 0;
-  if (state.opts['yoyaku-n']) opts += 1000;
-  if (state.opts['hg-n']) opts += 2000;
   if (state.opts['esd-taxi-n']) opts += 5000;
   return base + ot + opts;
 }
