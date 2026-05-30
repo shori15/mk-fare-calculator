@@ -26,7 +26,7 @@
     .login-btn{width:100%;padding:13px;border-radius:10px;background:#111;border:none;color:#b8922a;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;letter-spacing:.5px;}
     .login-btn:disabled{opacity:.5;}
     .login-error{color:#c04020;font-size:12px;text-align:center;margin-top:10px;min-height:18px;}
-    .wrong-img{width:160px;height:160px;object-fit:cover;border-radius:16px;margin-top:12px;display:none;}
+    .wrong-img{position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:10000;display:none;}
   </style>
 </head>
 <body>
@@ -45,7 +45,7 @@
   </div>
   <button class="login-btn" id="login-btn" onclick="doLogin()">ログイン</button>
   <div class="login-error" id="login-error"></div>
-  <img src="wrong.jpg" class="wrong-img" id="wrong-img" alt="wrong password" />
+  <img src="wrong.jpg" class="wrong-img" id="wrong-img" alt="wrong password" onclick="this.style.display='none'" />
 </div>
 
 <div id="app-root"></div>
